@@ -1,0 +1,2 @@
+def upload_layer(request):
+    raise NotImplemented()

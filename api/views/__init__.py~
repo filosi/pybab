@@ -1,0 +1,3 @@
+__all__ = ['upload_layer','delete_layer','upload_layer','delete_style']
+
+from .layer_views import upload_layer,delete_layer,upload_layer,delete_style
