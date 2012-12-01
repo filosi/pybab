@@ -1,3 +1,4 @@
+from django.db import connection, transaction, DatabaseError
 from django.contrib.gis.db import models
 
 class GeoTreeError(Exception):
@@ -14,7 +15,7 @@ class GeoTreeModel(models.Model):
 
     def save(self,force_insert=False, force_update=False):
         try:
-            super(GeoTreeModel, self).save(self, force_insert=force_insert, force_update=force_update)
+            super(GeoTreeModel, self).save(force_insert=force_insert, force_update=force_update)
         except DatabaseError as err:
             # TODO: find out where to import DatabaseError
             raise GeoTreeError.from_db_error( err )

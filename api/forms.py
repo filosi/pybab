@@ -127,10 +127,8 @@ class ShapeForm(forms.ModelForm):
         model = CatalogLayer
         fields = ("name",)
 
-class UserStyleForm(ShapeForm):
-    name = forms.CharField(max_length=255)
-
-    class Meta():
-        model = UserLayer
-        exclude = ("layer",)
-
+class UserStyleForm(forms.ModelForm):
+    #def __init__(self):
+    class Meta:
+        model = UserStyle
+        exclude = ("user", "name")

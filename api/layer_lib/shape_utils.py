@@ -33,7 +33,7 @@ def _upload2pg(dir, epsg_code):
     """Tries to upload the shapefile to postgres. If something went wrong
     it returns the problem, returns True otherwise"""
     db_conf = settings.DATABASES['default']
-    schema = shp_uploader_settings.SCHEMA_USER_UPLOADS
+    schema = layer_settings.SCHEMA_USER_UPLOADS
     #maybe better to use a system with ogr2ogr?
     args = ['ogr2ogr.py',
         '-f', 'PostgreSQL',
@@ -53,12 +53,12 @@ def _upload2pg(dir, epsg_code):
 def _toGeoserver(layer_name):
     """Tries to index the shapefile in geoserver. If something went wrong
     it returns the problem, returns True otherwise"""
-    geoserver_url = shp_uploader_settings.GEOSERVER_URL
-    username = shp_uploader_settings.GEOSERVER_USER
-    password = shp_uploader_settings.GEOSERVER_PASSWORD
+    geoserver_url = layer_settings.GEOSERVER_URL
+    username = layer_settings.GEOSERVER_USER
+    password = layer_settings.GEOSERVER_PASSWORD
     p2g = Pg2Geoserver(geoserver_url,username,password)
-    workspace = shp_uploader_settings.WORKSPACE_USER_UPLOADS
-    datastore = shp_uploader_settings.DATASTORE_USER_UPLOADS
+    workspace = layer_settings.WORKSPACE_USER_UPLOADS
+    datastore = layer_settings.DATASTORE_USER_UPLOADS
     try:
         p2g.create_layer(workspace=workspace,
                          datastore=datastore,
@@ -108,9 +108,9 @@ $BODY$
 
 def _remove_layer_geoserver(layer):
     #remove layer from geoserver
-    geoserver_url = shp_uploader_settings.GEOSERVER_URL
-    username = shp_uploader_settings.GEOSERVER_USER
-    password = shp_uploader_settings.GEOSERVER_PASSWORD
+    geoserver_url = layer_settings.GEOSERVER_URL
+    username = layer_settings.GEOSERVER_USER
+    password = layer_settings.GEOSERVER_PASSWORD
     p2g = Pg2Geoserver(geoserver_url,username,password)
     try:
         p2g.delete_layer(layer_name=layer.gs_name)
