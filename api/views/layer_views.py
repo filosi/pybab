@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from pybab.api import layer_settings
 from pybab.models import CatalogLayer
-from forms import ShapeForm, UserStyleForm
+from pybab.api.forms import ShapeForm, UserStyleForm
 from pybab.api.models import UserLayer, UserStyle
 from tojson import render_to_json, login_required_json
 
@@ -60,7 +60,7 @@ def delete_layer(request, pk):
 @login_required_json({'success': False,
                       'msg' :  _(u'Logging in is required')})
 @render_to_json()
-def list_shps(request):
+def list_layers(request):
     """Returns a json where layers is the list of the user layers"""
     user = request.user
     layers = [layer.as_dict() for layer in user.userlayer_set.all()]
@@ -122,7 +122,7 @@ def list_styles(request):
     return {'success': True,
             'styles' : styles}
 
-def display(request):
+def layer_form(request):
     '''Displays a form for 'upload'. Only active if settings.DEBUG is true'''
     return render(request,
                   "api/upload.html",
