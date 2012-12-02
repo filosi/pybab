@@ -93,9 +93,8 @@ class ShapeForm(forms.ModelForm):
         catalogLayer.gs_name = self.layer_id
         catalogLayer.layer_group = LayerGroup.objects.get(pk=0)
 
-        catalogLayer.code_column = "null" #why should I set this?
-
         if commit:
+            print catalogLayer.__dict__
             catalogLayer.save()
         return catalogLayer
 
