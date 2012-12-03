@@ -12,7 +12,6 @@ class CatalogShapeAdmin(admin.ModelAdmin):
 
 class UserStyleAdmin(admin.ModelAdmin):
     form = UserStyleForm
-    fields = ('user',)
     readonly_fields = ('name',)
 
 admin.site.register(UserStyle, UserStyleAdmin)

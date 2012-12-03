@@ -169,6 +169,15 @@ class ShapeForm(forms.ModelForm):
 
         if commit:
             catalogLayer.save()
+
+        #create userlayer for this catalogLayer
+        userStyle = self.cleaned_data["style"]
+        userLayer = UserLayer()
+        userLayer.style = userStyle
+        userLayer.layer = catalogLayer
+        userLayer.user = self.user
+        userLayer.save()
+
         return catalogLayer
 
     def clean_shape_zip(self):
