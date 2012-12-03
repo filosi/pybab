@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from .tree import Element
-from .commons import GeoTreeModel, GeoTreeError, get_raw_cursor
+from .commons import GeoTreeModel, GeoTreeError, pg_run
 
 # ===========================================================================
 # Utilities
@@ -48,7 +48,7 @@ class CatalogIndicator(GeoTreeModel, CatalogMixin):
     remotepass = models.CharField(max_length=255, blank=True, null=True)
     tableschema = models.TextField() 
     tablename = models.TextField() 
-    indicator_group = models.ForeignKey('IndicatorGroup')
+    indicator_group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0))
     code_column = models.TextField() 
     data_column = models.TextField() 
     time_column = models.TextField(blank=True, null=True) 
@@ -105,13 +105,10 @@ class CatalogStatistical(GeoTreeModel):
     remotepass = models.CharField(max_length=255, blank=True, null=True)
     tableschema = models.TextField() # This field type is a guess.
     tablename = models.TextField() # This field type is a guess.
-    statistical_group = models.ForeignKey('StatisticalGroup')
+    statistical_group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))
     code_column = models.TextField() # This field type is a guess.
     data_column = models.TextField() # This field type is a guess.
     time_column = models.TextField(blank=True, null=True) # This field type is a guess.
-
-    def save(self, force_insert=False, force_update=False):
-        pass
 
     class Meta:
         app_label = u'pybab'
@@ -161,7 +158,7 @@ class CatalogLayer(GeoTreeModel):
     remotepass = models.CharField(max_length=255, blank=True, null=True)
     tableschema = models.TextField(blank=True, null=True)
     tablename = models.TextField(blank=True, null=True) 
-    layer_group = models.ForeignKey('LayerGroup')
+    layer_group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))
     code_column = models.TextField(blank=True, null=True) 
     time_column = models.TextField(blank=True, null=True)
     geom_column = models.TextField(blank=True, null=True)
@@ -176,11 +173,7 @@ class CatalogLayer(GeoTreeModel):
             raise GeoTreeError("Can't import layer into catalog because tablename is not defined.")
         proc_name = u'gt_layer_import'
         args = [self.pk, name_column, parent_column, elements_rank]
-        with get_raw_cursor() as cursor:
-            cursor.callproc(proc_name, args)
-            results = cursor.fetchall()
-
-        return results
+        return pg_run(proc_name, args)
 
     class Meta:
         app_label=u'pybab'
