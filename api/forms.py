@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from pybab.api import layer_settings
 from pybab.api.models import UserStyle, UserLayer
 from pybab.models import CatalogLayer, LayerGroup
@@ -9,6 +10,58 @@ from pybab.api.layer_lib.shape_utils import _unzip_save, _upload2pg, \
                                      _toGeoserver, _delete_layer_postgis
 import zipfile, shutil
 import time
+import urllib2
+
+def _instantiate_pg2geoserver():
+    geoserver_url = layer_settings.GEOSERVER_URL
+    username = layer_settings.GEOSERVER_USER
+    password = layer_settings.GEOSERVER_PASSWORD
+    return Pg2Geoserver(geoserver_url,username,password)
+
+class UserStyleForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(UserStyleForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        """Validates the xml indexing it on the geoserver
+        Maybe it should be refactorized cause it has side effects
+        on the geoserver... This implementation tries to avoid
+        side effects problems.
+        """
+        cleaned_data = super(UserStyleForm, self).clean()
+        if self._errors:
+            return cleaned_data
+        p2g = _instantiate_pg2geoserver()
+
+        self.user = None
+        label = cleaned_data["label"]
+        if self.user:
+            self.name = label + str(self.user.id) + str(int(time.time()))
+        else:
+            self.name = label + "_adm_" + str(int(time.time()))
+        try:
+            p2g.create_style(self.name, cleaned_data["xml"])
+        except urllib2.HTTPError as e:
+            raise ValidationError("Could not validate the style.")
+        except urllib2.URLError as e:
+            raise ValidationError("Could not validate the style: "+str(e))
+
+        return cleaned_data
+
+    def save(self, force_insert=False, force_update=False, commit=True):
+        userStyle = super(UserStyleForm, self).save(commit=False)
+
+        userStyle.name = self.name
+        userStyle.user = self.user
+
+        if commit:
+            userStyle.save()
+        return userStyle
+
+    class Meta:
+        model = UserStyle
+        exclude = ("user", "name")
 
 def _check_number_files(extension, zip):
     """Check that in the zip there is exactly one file with the
@@ -22,7 +75,7 @@ def _check_number_files(extension, zip):
         raise forms.ValidationError(msg)
 
 class ShapeForm(forms.ModelForm):
-    def __init__(self, user=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         if "instance" not in kwargs:
             kwargs["instance"] = CatalogLayer()
         kwargs["instance"].remotehost = settings.DATABASES['default']['HOST']
@@ -38,8 +91,9 @@ class ShapeForm(forms.ModelForm):
         kwargs["instance"].geom_column = "wkb_geometry"
         kwargs["instance"].layergroup = LayerGroup.objects.get(pk=0)
 
+        self.user = kwargs.pop('user', None)
         super(ShapeForm, self).__init__(*args, **kwargs)
-        self.user = user
+
 
     epsg_code = forms.IntegerField(label="EPSG:")
     style = forms.ModelChoiceField(queryset=UserStyle.objects.all())
@@ -51,8 +105,8 @@ class ShapeForm(forms.ModelForm):
         WARNING: this clean method has side effects, it is done that way
         because it needs to raise execptions"""
         cleaned_data = super(ShapeForm, self).clean()
-        if not cleaned_data:
-            return {}
+        if self._errors:
+            return cleaned_data
 
         layer_label = self.cleaned_data["name"]
         if self.user:
@@ -94,7 +148,6 @@ class ShapeForm(forms.ModelForm):
         catalogLayer.layer_group = LayerGroup.objects.get(pk=0)
 
         if commit:
-            print catalogLayer.__dict__
             catalogLayer.save()
         return catalogLayer
 
@@ -125,9 +178,3 @@ class ShapeForm(forms.ModelForm):
     class Meta:
         model = CatalogLayer
         fields = ("name",)
-
-class UserStyleForm(forms.ModelForm):
-    #def __init__(self):
-    class Meta:
-        model = UserStyle
-        exclude = ("user", "name")

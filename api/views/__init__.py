@@ -1,4 +1,4 @@
-__all__ = ['upload_layer','delete_layer','upload_layer','delete_style',
+xb__all__ = ['upload_layer','delete_layer','upload_layer','delete_style',
            'layer_form', 'list_layers', 'list_styles',
            'upload_indicator','delete_indicator',
            'upload_statistical','delete_statistical',]

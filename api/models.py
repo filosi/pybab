@@ -1,14 +1,13 @@
 from django.db import models
+from pybab.api import layer_settings
 from pybab.models import CatalogLayer
+from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
-from pybab.api import layer_settings
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 from pybab.api.layer_lib import shape_utils
-import time
 import urllib2
 
 def _instantiate_pg2geoserver():
@@ -52,42 +51,6 @@ class UserStyle(models.Model):
                 'created_at': str(self.created_at),
                 }
 
-    def clean(self):
-        """Validates the xml indexing it on the geoserver
-        Maybe it should be refactorized cause it has side effects
-        on the geoserver... This implementation tries to avoid
-        side effects problems.
-        """
-        try:
-            self.clean_fields(exclude=('name',))
-        except ValidationError, e:
-            return
-        p2g = _instantiate_pg2geoserver()
-
-        to_delete = None
-        #if a style was already indexed on geoserver mark it for deletion
-        if self.name:
-            to_delete = self.name
-
-        if self.user:
-            self.name = self.label + str(self.user.id) + str(int(time.time()))
-        else:
-            self.name = self.label + "_adm_" + str(int(time.time()))
-        try:
-            p2g.create_style(self.name, self.xml)
-        except urllib2.HTTPError as e:
-            raise ValidationError("Could not validate the style.")
-        except urllib2.URLError as e:
-            raise ValidationError("Could not validate the style: "+str(e))
-
-        #delete previous style
-        if to_delete:
-            try:
-                p2g.delete_style(to_delete)
-            except (urllib2.HTTPError,urllib2.URLError):
-                #if something were wrong go on
-                pass
-
 @receiver(pre_delete, sender=UserStyle)
 def style_delete_handler(sender, **kwargs):
     obj = kwargs['instance']
@@ -97,6 +60,21 @@ def style_delete_handler(sender, **kwargs):
     except (urllib2.HTTPError,urllib2.URLError):
         #if something were wrong go on
         pass
+
+@receiver(pre_save, sender=UserStyle)
+def cataloglayer_update_handler(sender, **kwargs):
+    new_style = kwargs['instance']
+    if new_style.id:
+        try:
+            style = UserStyle.objects.get(pk=new_style.id)
+        except UserStyle.DoesNotExist:
+            return
+        p2g = _instantiate_pg2geoserver()
+        try:
+            p2g.delete_style(style.name)
+        except (urllib2.HTTPError,urllib2.URLError):
+            #if something were wrong go on
+            pass
 
 class UserLayer(models.Model):
     user = models.ForeignKey(User)

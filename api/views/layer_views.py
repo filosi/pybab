@@ -24,9 +24,9 @@ def upload_layer(request):
                               delete some of them.")
                 },{'cls': HttpResponseForbidden}
     form = ShapeForm(
-        user,
         request.POST,
-        request.FILES)
+        request.FILES,
+        user=user,)
     if form.is_valid():
         userStyle = form.cleaned_data["style"]
         catalogLayer = form.save()
@@ -80,7 +80,7 @@ def upload_style(request):
                 'errors': _(u"You have too many styles uploaded, \
                               delete some of them.")
                 }, {'cls': HttpResponseForbidden}
-    form = UserStyleForm(request.POST, instance=UserStyle(user=request.user))
+    form = UserStyleForm(request.POST, user=request.user)
     if form.is_valid():
         form.save()
         return {'success': True}
