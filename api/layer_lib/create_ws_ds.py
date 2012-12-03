@@ -15,17 +15,14 @@ class DatastoreCreationFailed(Exception):
     """Failed creating datastore"""
     pass
 
-def create_ws_ds():
+def create_ws_ds(workspace,datastore,schema):
     """Create the workspace and the datastore needed in the geoserver"""
     geoserver_url = layer_settings.GEOSERVER_URL
     username = layer_settings.GEOSERVER_USER
     password = layer_settings.GEOSERVER_PASSWORD
     p2g = Pg2Geoserver(geoserver_url,username,password)
 
-    workspace = layer_settings.WORKSPACE_USER_UPLOADS
-    datastore = layer_settings.DATASTORE_USER_UPLOADS
     db_conf = settings.DATABASES['default']
-    schema = layer_settings.SCHEMA_USER_UPLOADS
 
     try:
         p2g.create_workspace(workspace)

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.utils import DatabaseError
+from psycopg2 import DatabaseError
 from django.db import connection, transaction
 from pybab.api import layer_settings
 import shutil, tempfile
@@ -29,11 +29,10 @@ def _unzip_save(zip_file, layer):
     zip.close()
     return dir
 
-def _upload2pg(dir, epsg_code):
+def _upload2pg(dir, schema, epsg_code):
     """Tries to upload the shapefile to postgres. If something went wrong
     it returns the problem, returns True otherwise"""
     db_conf = settings.DATABASES['default']
-    schema = layer_settings.SCHEMA_USER_UPLOADS
     #maybe better to use a system with ogr2ogr?
     args = ['ogr2ogr.py',
         '-f', 'PostgreSQL',
@@ -50,15 +49,21 @@ def _upload2pg(dir, epsg_code):
         #raised, try the generic one
         return e.message
 
-def _toGeoserver(layer_name):
+def _toGeoserver(layer_name,admin):
     """Tries to index the shapefile in geoserver. If something went wrong
     it returns the problem, returns True otherwise"""
     geoserver_url = layer_settings.GEOSERVER_URL
     username = layer_settings.GEOSERVER_USER
     password = layer_settings.GEOSERVER_PASSWORD
     p2g = Pg2Geoserver(geoserver_url,username,password)
-    workspace = layer_settings.WORKSPACE_USER_UPLOADS
-    datastore = layer_settings.DATASTORE_USER_UPLOADS
+    if admin:
+        workspace = layer_settings.WORKSPACE_ADMIN_UPLOADS
+        datastore = layer_settings.DATASTORE_ADMIN_UPLOADS
+        schema = layer_settings.SCHEMA_ADMIN_UPLOADS
+    else:
+        workspace = layer_settings.WORKSPACE_USER_UPLOADS
+        datastore = layer_settings.DATASTORE_USER_UPLOADS
+        schema = layer_settings.SCHEMA_USER_UPLOADS
     try:
         p2g.create_layer(workspace=workspace,
                          datastore=datastore,
@@ -67,7 +72,7 @@ def _toGeoserver(layer_name):
         #maybe the workspace or the datastore were deleted: tries to create them
         #and index the layer again
         try:
-            create_ws_ds.create_ws_ds()
+            create_ws_ds.create_ws_ds(workspace,datastore,schema)
         except create_ws_ds.WorkspaceCreationFailed as e:
             return "Failed to create workspace: "+str(e)
         except create_ws_ds.DatastoreCreationFailed as e:
@@ -101,7 +106,7 @@ $BODY$
             cursor.execute(query)
             cursor.callproc("gt_drop_table",
                             [schema,layer_name])
-        except DatabaseError, e:
+        except DatabaseError as e:
             #if the layer could not be elimitade do nothing
             print e
     return

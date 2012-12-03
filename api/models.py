@@ -62,7 +62,7 @@ def style_delete_handler(sender, **kwargs):
         pass
 
 @receiver(pre_save, sender=UserStyle)
-def cataloglayer_update_handler(sender, **kwargs):
+def style_update_handler(sender, **kwargs):
     new_style = kwargs['instance']
     if new_style.id:
         try:
@@ -92,9 +92,25 @@ class UserLayer(models.Model):
                 'created_at': str(self.layer.creation_time),
                 }
 
+class CatalogShape(CatalogLayer):
+    class Meta:
+        proxy = True
+
 @receiver(pre_delete, sender=CatalogLayer)
 def cataloglayer_delete_handler(sender, **kwargs):
     catalogLayer = kwargs['instance']
     shape_utils._delete_layer_postgis(catalogLayer.tableschema,
                                       catalogLayer.tablename)
     shape_utils._remove_layer_geoserver(catalogLayer)
+
+@receiver(pre_save, sender=CatalogLayer)
+def style_update_handler(sender, **kwargs):
+    new_catalogLayer = kwargs['instance']
+    if new_catalogLayer.id:
+        try:
+            catalogLayer = CatalogLayer.objects.get(pk=new_catalogLayer.id)
+        except CatalogLayer.DoesNotExist:
+            return
+        shape_utils._delete_layer_postgis(catalogLayer.tableschema,
+                                          catalogLayer.tablename)
+        shape_utils._remove_layer_geoserver(catalogLayer)

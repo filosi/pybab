@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from .tree import Element
 from .commons import GeoTreeModel, GeoTreeError, get_raw_cursor
+from django.utils.translation import ugettext_lazy as _
 
 # ===========================================================================
 # Utilities
@@ -166,7 +167,8 @@ class CatalogLayer(GeoTreeModel):
     time_column = models.TextField(blank=True, null=True)
     geom_column = models.TextField(blank=True, null=True)
     ui_qtip = models.CharField(max_length=255, blank=True, null=True)
-    gs_name = models.CharField(max_length=255)
+    gs_name = models.CharField(max_length=255,
+                               verbose_name=_(u"Geoserver layer name"))
     gs_workspace = models.CharField(max_length=255, blank=True, null=True)
     gs_url = models.CharField(max_length=255)
     gs_legend_url = models.CharField(max_length=255, blank=True, null=True)

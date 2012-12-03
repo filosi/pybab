@@ -78,20 +78,26 @@ class ShapeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if "instance" not in kwargs:
             kwargs["instance"] = CatalogLayer()
+        self.user = kwargs.pop('user', None)
         kwargs["instance"].remotehost = settings.DATABASES['default']['HOST']
         kwargs["instance"].remotedb = settings.DATABASES['default']['NAME']
         kwargs["instance"].remoteport = settings.DATABASES['default']['PORT']
         kwargs["instance"].remoteuser = settings.DATABASES['default']['USER']
         kwargs["instance"].remotepass =settings.DATABASES['default']['PASSWORD']
-        kwargs["instance"].tableschema = \
-            layer_settings.SCHEMA_USER_UPLOADS
-        kwargs["instance"].gs_workspace = \
-            layer_settings.WORKSPACE_USER_UPLOADS
+        if self.user:
+            kwargs["instance"].tableschema = \
+                layer_settings.SCHEMA_USER_UPLOADS
+            kwargs["instance"].gs_workspace = \
+                layer_settings.WORKSPACE_USER_UPLOADS
+        else:
+            kwargs["instance"].tableschema = \
+                layer_settings.SCHEMA_ADMIN_UPLOADS
+            kwargs["instance"].gs_workspace = \
+                layer_settings.WORKSPACE_ADMIN_UPLOADS
         kwargs["instance"].gs_url = layer_settings.GEOSERVER_URL
         kwargs["instance"].geom_column = "wkb_geometry"
         kwargs["instance"].layergroup = LayerGroup.objects.get(pk=0)
 
-        self.user = kwargs.pop('user', None)
         super(ShapeForm, self).__init__(*args, **kwargs)
 
 
@@ -120,7 +126,14 @@ class ShapeForm(forms.ModelForm):
                           #request.FILES['shape_zip'],
                           layer_id)
         #store the shape in postgis
-        res = _upload2pg(dir, self.cleaned_data['epsg_code'])
+        if self.user:
+            res = _upload2pg(dir,
+                             layer_settings.SCHEMA_USER_UPLOADS,
+                             self.cleaned_data['epsg_code'])
+        else:
+            res = _upload2pg(dir,
+                             layer_settings.SCHEMA_ADMIN_UPLOADS,
+                             self.cleaned_data['epsg_code'])
         #delete directory with the shape
         shutil.rmtree(dir)
         if not res==True:
@@ -130,10 +143,17 @@ class ShapeForm(forms.ModelForm):
             raise forms.ValidationError(msg)
         else:
             #index on geoserver
-            res = _toGeoserver(layer_id)
+            if self.user:
+                res = _toGeoserver(layer_id,False)
+            else:
+                res = _toGeoserver(layer_id,True)
             if not res==True:
-                _delete_layer_postgis(layer_settings.SCHEMA_USER_UPLOADS,
-                                      layer_id)
+                if self.user:
+                    _delete_layer_postgis(layer_settings.SCHEMA_USER_UPLOADS,
+                                          layer_id)
+                else:
+                    _delete_layer_postgis(layer_settings.SCHEMA_ADMIN_UPLOADS,
+                                          layer_id)
                 msg = "Failed to index the layer on geoserver."
                 msg += "The reason was: "+str(res)
                 raise forms.ValidationError(msg)
