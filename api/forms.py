@@ -177,7 +177,6 @@ class ShapeForm(forms.ModelForm):
             userLayer.layer = catalogLayer
             userLayer.style = self.cleaned_data["style"]
             userLayer.user = self.user
-            print userLayer.__dict__
             userLayer.save()
 
         return catalogLayer

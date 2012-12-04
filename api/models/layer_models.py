@@ -51,6 +51,9 @@ class UserStyle(models.Model):
                 'created_at': str(self.created_at),
                 }
 
+    class Meta:
+        app_label = u'api'
+
 @receiver(pre_delete, sender=UserStyle)
 def style_delete_handler(sender, **kwargs):
     obj = kwargs['instance']
@@ -92,8 +95,12 @@ class UserLayer(models.Model):
                 'created_at': str(self.layer.creation_time),
                 }
 
+    class Meta:
+        app_label = u'api'
+
 class CatalogShape(CatalogLayer):
     class Meta:
+        app_label = u'api'
         proxy = True
 
 @receiver(pre_delete, sender=CatalogLayer)
