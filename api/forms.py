@@ -2,8 +2,8 @@ from django import forms
 from django.conf import settings
 from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from pybab.api import layer_settings
-from pybab.api.models import UserStyle, UserLayer
-from pybab.models import CatalogLayer, LayerGroup
+from pybab.api.models import UserStyle, UserLayer, CatalogShape
+from pybab.models import LayerGroup
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from pybab.api.layer_lib.shape_utils import _unzip_save, _upload2pg, \
@@ -34,7 +34,6 @@ class UserStyleForm(forms.ModelForm):
             return cleaned_data
         p2g = _instantiate_pg2geoserver()
 
-        self.user = None
         label = cleaned_data["label"]
         if self.user:
             self.name = label + str(self.user.id) + str(int(time.time()))
@@ -77,7 +76,7 @@ def _check_number_files(extension, zip):
 class ShapeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         if "instance" not in kwargs:
-            kwargs["instance"] = CatalogLayer()
+            kwargs["instance"] = CatalogShape()
         self.user = kwargs.pop('user', None)
         kwargs["instance"].remotehost = settings.DATABASES['default']['HOST']
         kwargs["instance"].remotedb = settings.DATABASES['default']['NAME']
@@ -167,16 +166,19 @@ class ShapeForm(forms.ModelForm):
         catalogLayer.gs_name = self.layer_id
         catalogLayer.layer_group = LayerGroup.objects.get(pk=0)
 
-        if commit:
+        #shuold be if commit. It is forced to commit in order to create
+        #the userLayer that is related to it
+        if True:
             catalogLayer.save()
-
-        #create userlayer for this catalogLayer
-        userStyle = self.cleaned_data["style"]
-        userLayer = UserLayer()
-        userLayer.style = userStyle
-        userLayer.layer = catalogLayer
-        userLayer.user = self.user
-        userLayer.save()
+            try:
+                userLayer = UserLayer.objects.get(layer=catalogLayer)
+            except UserLayer.DoesNotExist:
+                userLayer = UserLayer()
+            userLayer.layer = catalogLayer
+            userLayer.style = self.cleaned_data["style"]
+            userLayer.user = self.user
+            print userLayer.__dict__
+            userLayer.save()
 
         return catalogLayer
 
@@ -205,5 +207,5 @@ class ShapeForm(forms.ModelForm):
         return zip_file
 
     class Meta:
-        model = CatalogLayer
+        model = CatalogShape
         fields = ("name",)

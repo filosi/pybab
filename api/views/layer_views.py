@@ -28,14 +28,7 @@ def upload_layer(request):
         request.FILES,
         user=user,)
     if form.is_valid():
-        userStyle = form.cleaned_data["style"]
         catalogLayer = form.save()
-        userLayer = UserLayer()
-
-        userLayer.style = userStyle
-        userLayer.layer = catalogLayer
-        userLayer.user = user
-        userLayer.save()
 
         return {'success': True}
     else:

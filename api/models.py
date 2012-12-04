@@ -5,7 +5,7 @@ from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete, pre_save
+from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 from pybab.api.layer_lib import shape_utils
 import urllib2
@@ -77,7 +77,7 @@ def style_update_handler(sender, **kwargs):
             pass
 
 class UserLayer(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, null=True)
     layer = models.ForeignKey(CatalogLayer, unique=True)
     style = models.ForeignKey(UserStyle, on_delete=models.PROTECT)
 
@@ -104,7 +104,7 @@ def cataloglayer_delete_handler(sender, **kwargs):
     shape_utils._remove_layer_geoserver(catalogLayer)
 
 @receiver(pre_save, sender=CatalogLayer)
-def style_update_handler(sender, **kwargs):
+def catalogLayer_update_handler(sender, **kwargs):
     new_catalogLayer = kwargs['instance']
     if new_catalogLayer.id:
         try:
