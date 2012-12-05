@@ -20,7 +20,7 @@ def upload_layer(request):
     user = request.user
     if len(user.userlayer_set.all())>layer_settings.MAX_LAYER_UPLOADS:
         return {'success': False,
-                'errors': _(u"You have too many layers uploaded, \
+                'message': _(u"You have too many layers uploaded, \
                               delete some of them.")
                 },{'cls': HttpResponseForbidden}
     form = ShapeForm(

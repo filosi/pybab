@@ -1,14 +1,16 @@
+import urllib2
+
 from django.db import models
-from pybab.api import layer_settings
-from pybab.models import CatalogLayer
-from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
+
+from pybab.models import CatalogLayer
+from pybab.api import layer_settings
+from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from pybab.api.layer_lib import shape_utils
-import urllib2
 
 def _instantiate_pg2geoserver():
     geoserver_url = layer_settings.GEOSERVER_URL

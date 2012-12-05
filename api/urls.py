@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url#, include
 from django.conf import settings
 
 urlpatterns = patterns('pybab.api',
@@ -8,11 +8,8 @@ urlpatterns = patterns('pybab.api',
     url(r'^styles/$', 'views.upload_style'),
     url(r'^styles/delete/(?P<pk>\d+)/$', 'views.delete_style'),
     #catalogStatistical
-    url(r'^statisticals/$', 'views.upload_statistical'),
-    url(r'^statisticals/delete/(?P<pk>\d+)/$', 'views.delete_statistical'),
+    url(r'^statistical/(?P<tree_index>\d+)/$', 'views.catalog_statistical'),
     #catalogIndicator
-    url(r'^indicators/$', 'views.upload_indicator'),
-    url(r'^indicators/delete/(?P<pk>\d+)/$', 'views.delete_indicator'),
 )
 
 if getattr(settings, 'DEBUG', False):
