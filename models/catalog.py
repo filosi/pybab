@@ -1,13 +1,27 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from .tree import Element
-from .commons import GeoTreeModel, GeoTreeError, pg_run
+from .commons import GeoTreeModel, GeoTreeError, pg_run, dict_union
 
 # ===========================================================================
 # Utilities
 # ===========================================================================
 
 class CatalogModel(GeoTreeModel):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    creation_time = models.DateTimeField(auto_now_add=True)
+    numcode = models.IntegerField(default=0)
+    remotehost = models.CharField(max_length=255, blank=True, null=True)
+    remoteport = models.IntegerField(null=True, blank=True)
+    remotedb = models.CharField(max_length=255, blank=True, null=True)
+    remoteuser = models.CharField(max_length=255, blank=True, null=True)
+    remotepass = models.CharField(max_length=255, blank=True, null=True)
+    tableschema = models.TextField(blank=True, null=True) # This field type is a guess.
+    tablename = models.TextField(blank=True, null=True) # This field type is a guess.
+    code_column = models.TextField(blank=True, null=True)
+    time_column = models.TextField(blank=True, null=True)
+    
     @property
     def catalog_type(self):
         return type(self).__name__
@@ -15,6 +29,21 @@ class CatalogModel(GeoTreeModel):
     @property
     def elements(self):
         return Catalog.objects.get(pk=self.pk).elements
+    
+    def to_dict(self):
+        return {'id':self.id,
+                'name':self.name,
+                'creation_time':self.creation_time,
+                'numcode':self.numcode,
+                'remotehost':self.remotehost,
+                'remoteport':self.remoteport,
+                'remotedb':self.remotedb,
+                'remoteuser':self.remoteuser,
+                'remotepass':self.remotepass,
+                'tableschema':self.tableschema,
+                'tablename':self.tableschema,
+                'code_column':self.code_column,
+                'time_column':self.time_column}
 
     def __unicode__(self):
         return u'({id}, {name})'.format(id=self.id, name=self.name)
@@ -59,7 +88,8 @@ class ElementCatalogLink(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     gt_element = models.ForeignKey(Element, related_name="catalog_link_elements")
     gt_catalog_id = models.ForeignKey('Catalog')
-
+    
+    
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_element_catalog_link'
 
@@ -68,33 +98,34 @@ class ElementCatalogLink(GeoTreeModel):
 # ===========================================================================
 
 class CatalogIndicator(CatalogModel):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    creation_time = models.DateTimeField(auto_now_add=True)
-    numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, blank=True, null=True)
-    remoteport = models.IntegerField(null=True, blank=True)
-    remotedb = models.CharField(max_length=255, blank=True, null=True)
-    remoteuser = models.CharField(max_length=255, blank=True, null=True)
-    remotepass = models.CharField(max_length=255, blank=True, null=True)
-    tableschema = models.TextField() 
-    tablename = models.TextField() 
-    indicator_group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0))
-    code_column = models.TextField() 
+    indicator_group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0)) #nome diverso dal db
     data_column = models.TextField() 
-    time_column = models.TextField(blank=True, null=True) 
     ui_palette = models.CharField(max_length=255, blank=True, null=True)
     ui_quartili = models.TextField(blank=True, null=True)
     gs_name = models.CharField(max_length=255)
     gs_workspace = models.CharField(max_length=255, blank=True, null=True)
     gs_url = models.CharField(max_length=255)
 
+    def to_json(self):
+        dict_temp = { 'data_column': self.data_column,
+                      'ui_palette':self.ui_palette,
+                      'ui_quartili':self.ui_quartili,
+                      'gs_name':self.gs_name,
+                      'gs_workspace':self.gs_workspace,
+                      'gs_url':self.url}
+        
+        return dict_union(dict_temp,super(CatalogIndicator,self).to_json())
+    
     class Meta(CatalogModel.Meta):
         db_table = u'gt_catalog_indicator'
         
 class IndicatorGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    
+    def to_json(self):
+        return {'id':self.id,
+            'name':self.name}
     
     class Meta(GroupModel.Meta):
         db_table = u'gt_indicator_group'
@@ -111,21 +142,12 @@ class IndicatorTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogStatistical(CatalogModel):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    creation_time = models.DateTimeField(auto_now_add=True)
-    numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, blank=True)
-    remoteport = models.IntegerField(null=True, blank=True)
-    remotedb = models.CharField(max_length=255, blank=True, null=True)
-    remoteuser = models.CharField(max_length=255, blank=True, null=True)
-    remotepass = models.CharField(max_length=255, blank=True, null=True)
-    tableschema = models.TextField() # This field type is a guess.
-    tablename = models.TextField() # This field type is a guess.
-    statistical_group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))
-    code_column = models.TextField() # This field type is a guess.
+    statistical_group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))#nome diverso dal db
     data_column = models.TextField() # This field type is a guess.
-    time_column = models.TextField(blank=True, null=True) # This field type is a guess.
+    
+    def to_json(self):
+        dict_temp = { 'data_column': self.data_column}
+        return dict_union(dict_temp,super(CatalogIndicator,self).to_json())
 
     class Meta(CatalogModel.Meta):
         db_table = u'gt_catalog_statistical'
@@ -133,6 +155,10 @@ class CatalogStatistical(CatalogModel):
 class StatisticalGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    
+    def to_json(self):
+        return {'id':self.id,
+                'name':self.name}
 
     class Meta(GroupModel.Meta):
         db_table = u'gt_statistical_group'
@@ -150,20 +176,7 @@ class StatisticalTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogLayer(CatalogModel):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    creation_time = models.DateTimeField(auto_now_add=True)
-    numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, blank=True, null=True)
-    remoteport = models.IntegerField(null=True, blank=True)
-    remotedb = models.CharField(max_length=255, blank=True, null=True)
-    remoteuser = models.CharField(max_length=255, blank=True, null=True)
-    remotepass = models.CharField(max_length=255, blank=True, null=True)
-    tableschema = models.TextField(blank=True, null=True)
-    tablename = models.TextField(blank=True, null=True) 
-    layer_group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))
-    code_column = models.TextField(blank=True, null=True) 
-    time_column = models.TextField(blank=True, null=True)
+    layer_group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))    #nome diverso dal db
     geom_column = models.TextField(blank=True, null=True)
     ui_qtip = models.CharField(max_length=255, blank=True, null=True)
     gs_name = models.CharField(max_length=255,
@@ -179,12 +192,26 @@ class CatalogLayer(CatalogModel):
         args = [self.pk, name_column, parent_column, elements_rank]
         return pg_run(proc_name, args)
 
+    def to_json(self):
+        dict_temp = { 'geom_column': self.geom_column,
+                      'ui_tip':self.ui_tip,
+                      'gs_name':self.gs_name,
+                      'gs_workspace':self.gs_workspace,
+                      'gs_url':self.gs_url,
+                      'gs_legend_url':self.gs_legend_url}
+
+        return dict_union(dict_temp,super(CatalogIndicator,self).to_json())
+
     class Meta(CatalogModel.Meta):
         db_table=u'gt_catalog_layer'
 
 class LayerGroup(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
+    
+    def to_json(self):
+        return {'id':self.id,
+                'name':self.name}
 
     class Meta(GeoTreeModel.Meta):
         db_table=u'gt_layer_group'
@@ -233,6 +260,21 @@ class Catalog(GeoTreeModel):
 
     def delete(self):
         raise GeoTreeError("Can not delete from gt_catalog directly")
+    
+    def to_dict(self):
+        return {'id':self.id,
+                'name':self.name,
+                'creation_time':self.creation_time,
+                'numcode':self.numcode,
+                'remotehost':self.remotehost,
+                'remoteport':self.remoteport,
+                'remotedb':self.remotedb,
+                'remoteuser':self.remoteuser,
+                'remotepass':self.remotepass,
+                'tableschema':self.tableschema,
+                'tablename':self.tableschema,
+                'code_column':self.code_column,
+                'time_column':self.time_column}
 
     def __unicode__(self):
         return self.name
@@ -250,5 +292,12 @@ class Meta(GeoTreeModel):
     description = models.TextField(blank=True, null=True)
     source = models.TextField(blank=True, null=True)
     measure_unit = models.TextField(blank=True, null=True)
+    
+    def to_dict(self):
+        return {'id':self.id,
+                'description':self.description,
+                'source':self.source,
+                'measure_unit':measure_unit}
+
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_meta'
