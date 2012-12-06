@@ -25,17 +25,20 @@ def is_geotree():
 
     return cursor.rowcount==len(tables)
 
+# Dummy callback
 def my_callback(sender, **kwargs):
-    if not is_geotree():
-        cursor = connection.cursor()
-        print "Setting up pybab..."
-        for sql_file in SQL_FILES:
-            with open(os.path.join("pybab/management",sql_file),"r") as f:
-                query = f.read()
-                with transaction.commit_on_success():
-                    pass
+    pass
+#TODO: fix this
+#def my_callback(sender, **kwargs):
+#    if not is_geotree():
+#        cursor = connection.cursor()
+#        print "Setting up pybab..."
+#        for sql_file in SQL_FILES:
+#            with open(os.path.join("pybab/management",sql_file),"r") as f:
+#                query = f.read()
+#                with transaction.commit_on_success():
+#                    pass
 #-------------- it doesn't work, we need to fix it!
-                    #cursor.execute(query)
-
+#                    #cursor.execute(query)
 
 post_syncdb.connect(my_callback, sender=pybab.models)

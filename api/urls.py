@@ -10,6 +10,7 @@ urlpatterns = patterns('pybab.api',
     #catalogStatistical
     url(r'^statistical/(?P<tree_index>\d+)/$', 'views.catalog_statistical'),
     #catalogIndicator
+    url(r'^indicator/(?P<tree_index>\d+)/$', 'views.catalog_indicator'),
 )
 
 if getattr(settings, 'DEBUG', False):

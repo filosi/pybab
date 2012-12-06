@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from pybab.api.models import UserStyle, CatalogShape
-from pybab.models import CatalogLayer
+from pybab.api.models import UserStatisticalLink
 from forms import ShapeForm, UserStyleForm
 
 class AdminStyleForm(UserStyleForm):
@@ -35,3 +35,4 @@ class UserStyleAdmin(admin.ModelAdmin):
 admin.site.register(UserStyle, UserStyleAdmin)
 admin.site.register(CatalogShape, CatalogShapeAdmin)
 
+admin.site.register(UserStatisticalLink)

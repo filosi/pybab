@@ -15,7 +15,7 @@ def my_callback(sender, **kwargs):
                 cursor.execute(query)
             except django.db.utils.DatabaseError, e:
                 #if the schema already exist do nothing
-                if ("already exists" not in e.message):
+                if "already exists" not in e.message:
                     raise
 
 post_syncdb.connect(my_callback, sender=pybab.api.models)
