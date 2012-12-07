@@ -1,16 +1,20 @@
-from django import forms
-from django.conf import settings
-from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
-from pybab.api import layer_settings
-from pybab.api.models import UserStyle, UserLayer, CatalogShape
-from pybab.models import LayerGroup
-from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
-from pybab.api.layer_lib.shape_utils import _unzip_save, _upload2pg, \
-                                     _toGeoserver, _delete_layer_postgis
-import zipfile, shutil
 import time
 import urllib2
+import zipfile, shutil
+
+from django import forms
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+
+from pybab.models import LayerGroup
+
+from ..layer_lib.pg2geoserver import Pg2Geoserver
+from .. import layer_settings
+from ..layer_lib.shape_utils import _unzip_save, _upload2pg, \
+                                     _toGeoserver, _delete_layer_postgis
+# TODO: change UserStyle to UserStyleLink
+from ..models import UserStyle, UserLayerLink, CatalogShape
 
 def _instantiate_pg2geoserver():
     geoserver_url = layer_settings.GEOSERVER_URL
@@ -171,9 +175,9 @@ class ShapeForm(forms.ModelForm):
         if True:
             catalogLayer.save()
             try:
-                userLayer = UserLayer.objects.get(layer=catalogLayer)
-            except UserLayer.DoesNotExist:
-                userLayer = UserLayer()
+                userLayer = UserLayerLink.objects.get(layer=catalogLayer)
+            except UserLayerLink.DoesNotExist:
+                userLayer = UserLayerLink()
             userLayer.layer = catalogLayer
             userLayer.style = self.cleaned_data["style"]
             userLayer.user = self.user

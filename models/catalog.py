@@ -205,7 +205,7 @@ class CatalogLayer(CatalogModel):
     class Meta(CatalogModel.Meta):
         db_table=u'gt_catalog_layer'
 
-class LayerGroup(GeoTreeModel):
+class LayerGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     
@@ -213,7 +213,7 @@ class LayerGroup(GeoTreeModel):
         return {'id':self.id,
                 'name':self.name}
 
-    class Meta(GeoTreeModel.Meta):
+    class Meta(GroupModel.Meta):
         db_table=u'gt_layer_group'
 
 class LayerTree(GroupModel):

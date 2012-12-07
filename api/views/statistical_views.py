@@ -7,10 +7,10 @@ from django.http import HttpResponseBadRequest
 
 @login_required_json_default
 @render_to_json()
-def catalog_statistical(request, group_index):
+def catalog_statistical(request, index):
     user = request.user
     if request.method == 'GET':
-        return get_subtree_for(user, int(group_index), StatisticalGroup, CatalogStatistical)
+        return get_subtree_for(user, int(index), StatisticalGroup, CatalogStatistical)
     elif request.method == 'POST':
 
         statistical_form = UserStatisticalLinkForm(request.POST)

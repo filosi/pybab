@@ -6,9 +6,9 @@ from tojson import render_to_json
 from pybab.models import CatalogLayer, LayerGroup
 
 from .commons import login_required_json_default, get_subtree_for
-from .models import UserLayerLink
-from .forms import ShapeForm
-from .layer_settings import MAX_LAYER_UPLOADS
+from ..models import UserLayerLink
+from ..forms import ShapeForm
+from ..layer_settings import MAX_LAYER_UPLOADS
 
 @login_required_json_default
 @render_to_json()
