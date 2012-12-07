@@ -33,7 +33,7 @@ class CatalogModel(GeoTreeModel):
     def to_dict(self):
         return {'id':self.id,
                 'name':self.name,
-                'creation_time':self.creation_time,
+                'creation_time':self.creation_time.isoformat(),
                 'numcode':self.numcode,
                 'remotehost':self.remotehost,
                 'remoteport':self.remoteport,
@@ -264,7 +264,7 @@ class Catalog(GeoTreeModel):
     def to_dict(self):
         return {'id':self.id,
                 'name':self.name,
-                'creation_time':self.creation_time,
+                'creation_time':self.creation_time.isoformat(),
                 'numcode':self.numcode,
                 'remotehost':self.remotehost,
                 'remoteport':self.remoteport,

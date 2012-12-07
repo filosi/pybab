@@ -8,4 +8,6 @@ def catalog_statistical(request, tree_index):
     user = request.user
     if request.method == 'GET':
         return get_subtree_for(user, int(tree_index), StatisticalGroup, CatalogStatistical)
+    elif request.method == 'POST':
+        
 
