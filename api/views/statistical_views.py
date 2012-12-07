@@ -18,7 +18,7 @@ def catalog_statistical(request, tree_index):
         if statistical_form.is_valid():
             statistical.save()
             return {'success': True}
-        else
+        else:
             return {'success': False,
                     'message': statistical_form.errors },
                    { 'cls': HttpResponseBadRequest}   

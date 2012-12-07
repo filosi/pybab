@@ -18,7 +18,7 @@ def catalog_indicator(request, tree_index):
         if indicator_form.is_valid():
             indicator_form.save()
             return {'success': True}
-        else 
+        else: 
             return {'success': False,
                     'message': indicator_form.errors },
                    { 'cls': HttpResponseBadRequest}   
