@@ -12,15 +12,15 @@ class CatalogModel(GeoTreeModel):
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
     numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, blank=True, null=True)
-    remoteport = models.IntegerField(null=True, blank=True)
-    remotedb = models.CharField(max_length=255, blank=True, null=True)
-    remoteuser = models.CharField(max_length=255, blank=True, null=True)
-    remotepass = models.CharField(max_length=255, blank=True, null=True)
-    tableschema = models.TextField(blank=True, null=True) # This field type is a guess.
-    tablename = models.TextField(blank=True, null=True) # This field type is a guess.
-    code_column = models.TextField(blank=True, null=True)
-    time_column = models.TextField(blank=True, null=True)
+    remotehost = models.CharField(max_length=255, null=True)
+    remoteport = models.IntegerField(null=True)
+    remotedb = models.CharField(max_length=255, null=True)
+    remoteuser = models.CharField(max_length=255, null=True)
+    remotepass = models.CharField(max_length=255, null=True)
+    tableschema = models.TextField(null=True) 
+    tablename = models.TextField(null=True) 
+    code_column = models.TextField(null=True)
+    time_column = models.TextField(null=True)
     
     @property
     def catalog_type(self):
@@ -100,10 +100,10 @@ class ElementCatalogLink(GeoTreeModel):
 class CatalogIndicator(CatalogModel):
     group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0))
     data_column = models.TextField() 
-    ui_palette = models.CharField(max_length=255, blank=True, null=True)
-    ui_quartili = models.TextField(blank=True, null=True)
+    ui_palette = models.CharField(max_length=255, null=True)
+    ui_quartili = models.TextField(null=True)
     gs_name = models.CharField(max_length=255)
-    gs_workspace = models.CharField(max_length=255, blank=True, null=True)
+    gs_workspace = models.CharField(max_length=255, null=True)
     gs_url = models.CharField(max_length=255)
 
     def to_json(self):
@@ -143,7 +143,7 @@ class IndicatorTree(GeoTreeModel):
 
 class CatalogStatistical(CatalogModel):
     group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))
-    data_column = models.TextField() # This field type is a guess.
+    data_column = models.TextField() 
     
     def to_json(self):
         dict_temp = { 'data_column': self.data_column}
@@ -177,13 +177,13 @@ class StatisticalTree(GeoTreeModel):
 
 class CatalogLayer(CatalogModel):
     group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))
-    geom_column = models.TextField(blank=True, null=True)
-    ui_qtip = models.CharField(max_length=255, blank=True, null=True)
+    geom_column = models.TextField(null=True)
+    ui_qtip = models.CharField(max_length=255, null=True)
     gs_name = models.CharField(max_length=255,
                                verbose_name=_(u"Geoserver layer name"))
-    gs_workspace = models.CharField(max_length=255, blank=True, null=True)
+    gs_workspace = models.CharField(max_length=255, null=True)
     gs_url = models.CharField(max_length=255)
-    gs_legend_url = models.CharField(max_length=255, blank=True, null=True)
+    gs_legend_url = models.CharField(max_length=255, null=True)
 
     def import_elements_from(self, name_column, parent_column, elements_rank):
         if self.tablename is None or self.tablename == "":
@@ -233,15 +233,15 @@ class Catalog(GeoTreeModel):
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
     numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, blank=True, null=True)
-    remoteport = models.IntegerField(null=True, blank=True)
-    remotedb = models.CharField(max_length=255, blank=True, null=True)
-    remoteuser = models.CharField(max_length=255, blank=True, null=True)
-    remotepass = models.CharField(max_length=255, blank=True, null=True)
-    tableschema = models.TextField(blank=True, null=True) # This field type is a guess.
-    tablename = models.TextField(blank=True, null=True) # This field type is a guess.
-    code_column = models.TextField(blank=True, null=True)
-    time_column = models.TextField(blank=True, null=True)
+    remotehost = models.CharField(max_length=255, null=True)
+    remoteport = models.IntegerField(null=True)
+    remotedb = models.CharField(max_length=255, null=True)
+    remoteuser = models.CharField(max_length=255, null=True)
+    remotepass = models.CharField(max_length=255, null=True)
+    tableschema = models.TextField(null=True) 
+    tablename = models.TextField(null=True) 
+    code_column = models.TextField(null=True)
+    time_column = models.TextField(null=True)
 
     @property
     def specific(self):
@@ -289,21 +289,21 @@ class Catalog(GeoTreeModel):
 class Meta(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     gt_catalog = models.ForeignKey(Catalog, unique=True, related_name="metadata_set")
-    title = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    category = models.TextField(blank=True, null=True)
-    extent = models.TextField(blank=True, null=True)
-    measure_unit = models.TextField(blank=True, null=True)
-    author = models.TextField(blank=True, null=True)
-    ref_year = models.IntegerField(null=True, blank=True)
-    creation_year = models.IntegerField(null=True, blank=True)
-    native_format = models.TextField(blank=True, null=True)
-    genealogy = models.TextField(blank=True, null=True)
-    spatial_resolution = models.TextField(blank=True, null=True)
-    ref_system = models.TextField(blank=True, null=True)
-    availability = models.TextField(blank=True, null=True)
-    has_attributes = models.NullBooleanField(blank=True)
-    source = models.TextField(blank=True, null=True)
+    title = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
+    category = models.TextField(null=True)
+    extent = models.TextField(null=True)
+    measure_unit = models.TextField(null=True)
+    author = models.TextField(null=True)
+    ref_year = models.IntegerField(null=True)
+    creation_year = models.IntegerField(null=True)
+    native_format = models.TextField(null=True)
+    genealogy = models.TextField(null=True)
+    spatial_resolution = models.TextField(null=True)
+    ref_system = models.TextField(null=True)
+    availability = models.TextField(null=True)
+    has_attributes = models.NullBooleanField(null=True)
+    source = models.TextField(null=True)
          
     def to_dict(self):
         return {'id':self.id,
