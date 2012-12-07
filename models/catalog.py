@@ -289,15 +289,39 @@ class Catalog(GeoTreeModel):
 class Meta(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     gt_catalog = models.ForeignKey(Catalog, unique=True, related_name="metadata_set")
+    title = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    source = models.TextField(blank=True, null=True)
+    category = models.TextField(blank=True, null=True)
+    extent = models.TextField(blank=True, null=True)
     measure_unit = models.TextField(blank=True, null=True)
-    
+    author = models.TextField(blank=True, null=True)
+    ref_year = models.IntegerField(null=True, blank=True)
+    creation_year = models.IntegerField(null=True, blank=True)
+    native_format = models.TextField(blank=True, null=True)
+    genealogy = models.TextField(blank=True, null=True)
+    spatial_resolution = models.TextField(blank=True, null=True)
+    ref_system = models.TextField(blank=True, null=True)
+    availability = models.TextField(blank=True, null=True)
+    has_attributes = models.NullBooleanField(blank=True)
+    source = models.TextField(blank=True, null=True)
+         
     def to_dict(self):
         return {'id':self.id,
+                'title':self.title,
                 'description':self.description,
-                'source':self.source,
-                'measure_unit':measure_unit}
+                'category':self.category,
+                'extent':self.extent,
+                'measure_unit':self.measure_unit,
+                'author':self.author,
+                'ref_year':self.ref_year,
+                'creation_year':self.creation_year,
+                'native_format':self.native_format,
+                'genealogy':self.genealogy,
+                'spatial_resolution':self.spatial_resolution,
+                'ref_system':self.ref_system,
+                'availability':self.availability,
+                'has_attributes':self.has_attributes,
+                'source':self.source}
 
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_meta'
