@@ -98,7 +98,7 @@ class ElementCatalogLink(GeoTreeModel):
 # ===========================================================================
 
 class CatalogIndicator(CatalogModel):
-    indicator_group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0)) #nome diverso dal db
+    group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0))
     data_column = models.TextField() 
     ui_palette = models.CharField(max_length=255, blank=True, null=True)
     ui_quartili = models.TextField(blank=True, null=True)
@@ -125,7 +125,7 @@ class IndicatorGroup(GroupModel):
     
     def to_json(self):
         return {'id':self.id,
-            'name':self.name}
+                'name':self.name}
     
     class Meta(GroupModel.Meta):
         db_table = u'gt_indicator_group'
@@ -142,7 +142,7 @@ class IndicatorTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogStatistical(CatalogModel):
-    statistical_group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))#nome diverso dal db
+    group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))
     data_column = models.TextField() # This field type is a guess.
     
     def to_json(self):
@@ -176,7 +176,7 @@ class StatisticalTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogLayer(CatalogModel):
-    layer_group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))    #nome diverso dal db
+    group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))
     geom_column = models.TextField(blank=True, null=True)
     ui_qtip = models.CharField(max_length=255, blank=True, null=True)
     gs_name = models.CharField(max_length=255,
