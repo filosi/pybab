@@ -4,8 +4,8 @@ from .commons import login_required_json_default, get_subtree_for
 
 @login_required_json_default
 @render_to_json()
-def catalog_statistical(request, tree_index):
+def catalog_statistical(request, group_index):
     user = request.user
     if request.method == 'GET':
-        return get_subtree_for(user, int(tree_index), StatisticalGroup, CatalogStatistical)
+        return get_subtree_for(user, int(group_index), StatisticalGroup, CatalogStatistical)
 
