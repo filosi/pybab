@@ -200,13 +200,13 @@ class CatalogLayer(CatalogModel):
 
     def to_dict(self):
         dict_temp = {'geom_column': self.geom_column,
-                     'ui_tip':self.ui_tip,
+                     'ui_qtip':self.ui_tip,
                      'gs_name':self.gs_name,
                      'gs_workspace':self.gs_workspace,
                      'gs_url':self.gs_url,
                      'gs_legend_url':self.gs_legend_url}
 
-        return dict_union(dict_temp,super(CatalogIndicator,self).to_dict())
+        return dict_union(dict_temp,super(CatalogLayer, self).to_dict())
 
     class Meta(CatalogModel.Meta):
         db_table=u'gt_catalog_layer'

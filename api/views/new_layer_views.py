@@ -12,7 +12,7 @@ from ..layer_settings import MAX_LAYER_UPLOADS
 
 @login_required_json_default
 @render_to_json()
-def catalog_layer(request, index):
+def catalog_layer(request, index=0):
     user = request.user
 
     if request.method == 'GET':
@@ -50,7 +50,7 @@ def _delete_layer(user, index):
         return {'success':False,
                 'message': _(error_msg)}, {'cls':HttpResponseNotFound}
 
-    if catalog_layer.related_user_set.exists():
+    if not catalog_layer.related_user_set.exists():
         error_msg = u"layer with id '{}' is public, you can not delete it."
         return {'success':False,
                 'message': _(error_msg)}, {'cls':HttpResponseForbidden}
