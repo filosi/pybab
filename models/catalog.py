@@ -104,7 +104,7 @@ class ElementCatalogLink(GeoTreeModel):
 # ===========================================================================
 
 class CatalogIndicator(CatalogModel):
-    group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=0))
+    group = models.ForeignKey('IndicatorGroup', default=lambda:IndicatorGroup.objects.get(pk=1))
     data_column = models.TextField() 
     ui_palette = models.CharField(max_length=255, null=True)
     ui_quartili = models.TextField(null=True)
@@ -148,7 +148,7 @@ class IndicatorTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogStatistical(CatalogModel):
-    group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=0))
+    group = models.ForeignKey('StatisticalGroup', default=lambda:StatisticalGroup.objects.get(pk=1))
     data_column = models.TextField() 
     
     def to_dict(self):
@@ -182,7 +182,7 @@ class StatisticalTree(GeoTreeModel):
 # ===========================================================================
 
 class CatalogLayer(CatalogModel):
-    group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=0))
+    group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=1))
     geom_column = models.TextField(null=True)
     ui_qtip = models.CharField(max_length=255, null=True)
     gs_name = models.CharField(max_length=255,
