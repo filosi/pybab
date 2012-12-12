@@ -18,7 +18,11 @@ def catalog_layer(request, index=0):
     user = request.user
 
     if request.method == 'GET':
-       return get_subtree_for(user, int(index), LayerGroup, CatalogLayer)
+        def get_style(instance):
+            if instance.related_user_set.exists():
+                
+        
+        return get_subtree_for(user, int(index), LayerGroup, CatalogLayer, extra_data= )
     elif request.method == 'POST':
         return _upload_layer(request, user)
     elif request.method == 'DELETE':

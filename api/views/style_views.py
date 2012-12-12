@@ -1,9 +1,15 @@
+from django.db import models
 from django.http import HttpResponseForbidden, \
         HttpResponseBadRequest, HttpResponseNotFound
+from django.utils.translation import ugettext as _
 
 from tojson import render_to_json
 
-from .commons import login_required_json_default
+from .commons import login_required_json_default, add_to_dicts
+from ..layer_settings import MAX_STYLE_UPLOADS
+from ..models import UserStyle
+
+from ..forms import UserStyleForm
 
 from django.views.decorators.csrf import csrf_exempt
 #TODO: remove exempt
@@ -27,17 +33,21 @@ def styles(request, index=0):
 
 def _list_styles(user):
     """Returns a json where styles is the list of the user styles"""
-    styles = [style.as_dict() for style in user.userstyle_set.all()]
-    #add default styles (with user=None)
-    styles += [style.as_dict() for style in
-               UserStyle.objects.filter(user__isnull = True)]
-    return {'success': True,
-            'styles' : styles}
+    user_styles = add_to_dicts(
+            [style.to_dict() for style in user.userstyle_set.all()],
+            {'public':False})
+
+    public_styles = add_to_dicts(
+            [style.to_dict() for style in UserStyle.objects.filter(user__isnull=True)],
+            {'public': True})
+
+    return {'success':True,
+            'data':user_styles + public_styles}
 
 def _upload_style(request, user):
     """Returns a json with the result of the request,
     if it failed the error is reported"""
-    if len(user.userstyle_set.all())>layer_settings.MAX_STYLE_UPLOADS:
+    if user.userstyle_set.count() > MAX_STYLE_UPLOADS:
         return {'success': False,
                 'errors': _(u"You have too many styles uploaded, \
                               delete some of them.")
@@ -59,10 +69,10 @@ def _delete_style(pk):
                 {'cls': HttpResponseNotFound})
     try:
         style.delete()
-    except models.ProtectedError, e:
+    except models.ProtectedError as e:
         msg = ("Cannot delete the style '{}' because "
                "it is associate to the following layer: ").format(style.label)
-        msg += " ".join(["'"+s.layer.name+"'" for s in style.userlayer_set.all()])
+        msg += " ".join(["'"+s.layer.name+"'" for s in style.userlayerlink_set.all()])
         return ({'success': False,
                  'message': msg},
                 {'cls': HttpResponseBadRequest})
