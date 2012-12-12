@@ -20,7 +20,7 @@ def catalog_layer(request, index=0):
     if request.method == 'GET':
        return get_subtree_for(user, int(index), LayerGroup, CatalogLayer)
     elif request.method == 'POST':
-        return _upload_layer(request, user, index)
+        return _upload_layer(request, user)
     elif request.method == 'DELETE':
         return _delete_layer(user, index)
     else:
@@ -29,7 +29,7 @@ def catalog_layer(request, index=0):
         return {'success' : False,
                 'message' : _(error_msg)}, {'cls':HttpResponseForbidden}
 
-def _upload_layer(request, user, index):
+def _upload_layer(request, user):
     if user.userlayerlink_set.count() > MAX_LAYER_UPLOADS:
         error_msg = u"too many layers uploaded. max number is {}".format(
                 MAX_LAYER_UPLOADS)
