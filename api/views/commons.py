@@ -5,10 +5,10 @@ from tojson import login_required_json
 
 from ..models import get_system_catalogs, get_user_catalogs
 
-def _add_to_dicts( dict_list, key, value ):
+def add_to_dicts( dict_list, dict_update ):
     new_dict_list = [d.copy() for d in dict_list]
     for d in new_dict_list:
-        d[key]=value
+        d.update(dict_update)
 
     return new_dict_list 
 
@@ -23,11 +23,13 @@ def get_subtree_for(user, group_index, group_class, catalog_class):
                 'message':'{} is not a valid index for {}'.format(group_index, group_class.__name__)},\
                {'cls': HttpResponseNotFound}
 
-    folders = [f.to_dict() for f in root.children]
-    public_catalogs = _add_to_dicts(
-            [cat.to_dict() for cat in get_system_catalogs(catalog_class, group_index)], 'public', True)
-    private_catalogs = _add_to_dicts(
-            [cat.to_dict() for cat in get_user_catalogs(user, catalog_class, group_index)], 'public', False)
+    folders = add_to_dicts([f.to_dict() for f in root.children], {'leaf':False})
+    public_catalogs = add_to_dicts(
+            [cat.to_dict() for cat in get_system_catalogs(catalog_class, group_index)],
+            {'public':True, 'leaf':True})
+    private_catalogs = add_to_dicts(
+            [cat.to_dict() for cat in get_user_catalogs(user, catalog_class, group_index)],
+            {'leaf':True, 'public':False})
 
     return {'success':'true',
             'requested':root.to_dict(),
