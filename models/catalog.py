@@ -200,7 +200,7 @@ class CatalogLayer(CatalogModel):
 
     def to_dict(self):
         dict_temp = {'geom_column': self.geom_column,
-                     'ui_qtip':self.ui_tip,
+                     'ui_qtip':self.ui_qtip,
                      'gs_name':self.gs_name,
                      'gs_workspace':self.gs_workspace,
                      'gs_url':self.gs_url,

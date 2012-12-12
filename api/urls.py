@@ -15,3 +15,9 @@ urlpatterns = patterns('pybab.api',
     #metadata
     url(r'^metadata/(?P<index>\d+)/$', 'views.metadata'),
 )
+
+
+from django.conf import settings
+if getattr(settings, 'DEBUG', False):
+    urlpatterns += patterns('',
+                            url(r'layer/form/', 'pybab.api.views.new_layer_views.layer_form'))
