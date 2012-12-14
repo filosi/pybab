@@ -31,7 +31,7 @@ def get_subtree_for(user, group_index, group_class, catalog_class, extra_data=No
     public_catalogs = [_to_dict(cat, {'leaf':True, 'public':True}, *extra_data)
             for cat in get_system_catalogs(catalog_class, group_index)]
 
-    private_catalogs = [_to_dict(cat, {'leaf':True, 'public':False}, *extra_data)
+    private_catalogs = [_to_dict(cat, {'leaf':True,'public':False}, *extra_data)
             for cat in get_user_catalogs(user, catalog_class, group_index)]
 
     return {'success':'true',

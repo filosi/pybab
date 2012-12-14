@@ -19,12 +19,15 @@ def catalog_layer(request, index=0):
 
     if request.method == 'GET':
         def get_style(instance):
+            ret_dict = {}
             if instance.related_user_set.exists():
-                
-        
-        return get_subtree_for(user, int(index), LayerGroup, CatalogLayer, extra_data= )
+                #unique force this to be only one
+                ret_dict['style'] = instance.related_user_set.all()[0].style.name
+            return ret_dict
+        return get_subtree_for(user, int(index), LayerGroup,
+                CatalogLayer, extra_data=(get_style,{'checked':False}))
     elif request.method == 'POST':
-        return _upload_layer(request, user)
+        return _upload_layer(request, user, index)
     elif request.method == 'DELETE':
         return _delete_layer(user, index)
     else:
@@ -33,7 +36,7 @@ def catalog_layer(request, index=0):
         return {'success' : False,
                 'message' : _(error_msg)}, {'cls':HttpResponseForbidden}
 
-def _upload_layer(request, user):
+def _upload_layer(request, user, index):
     if user.userlayerlink_set.count() > MAX_LAYER_UPLOADS:
         error_msg = u"too many layers uploaded. max number is {}".format(
                 MAX_LAYER_UPLOADS)

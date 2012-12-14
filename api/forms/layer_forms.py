@@ -80,12 +80,14 @@ def _check_number_files(extension, zip):
 class ShapeForm(forms.ModelForm):
     def __new__(cls, *args, **kwargs):
         user = kwargs.get('user', None)
-        print user
+
         if user is None:
             style_queryset = UserStyle.objects
         else:
-            style_queryset = user.userstyle_set
-        cls.base_fields["style"] = forms.ModelChoiceField(queryset=style_queryset)
+            style_queryset = user.userstyle_set.all() | \
+                                  UserStyle.objects.filter(user__isnull=True)
+        cls.base_fields["style"] = forms.ModelChoiceField(
+            queryset=style_queryset)
         return super(ShapeForm, cls).__new__(cls, *args, **kwargs)
 
     def __init__(self, *args, **kwargs):
@@ -113,7 +115,9 @@ class ShapeForm(forms.ModelForm):
 
         super(ShapeForm, self).__init__(*args, **kwargs)
 
-
+    #this is declared here to have it in classes that inherits this
+    #to check why for those the new doesn't work
+    style = forms.ModelChoiceField(queryset=UserStyle.objects.all())
     epsg_code = forms.IntegerField(label="EPSG:")
     shape_zip = forms.FileField()
 
@@ -178,7 +182,9 @@ class ShapeForm(forms.ModelForm):
         catalogLayer.tablename = self.layer_id
         catalogLayer.gs_name = self.layer_id
 
-        if commit:
+        #should be if commit, it is forced to save in order to create the
+        #UserLayerLink for the CatalogLayer
+        if True:
             catalogLayer.save()
             #update the UserLayerLink related to this CatalogLayer
             try:
