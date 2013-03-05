@@ -5,6 +5,7 @@ from django.contrib.gis.db import models
 # Raw cursor related stuff
 # ===========================================================================
 
+
 class get_raw_cursor(object):
     def __init__(self, cursor_name=None):
         if cursor_name is not None:
@@ -19,9 +20,10 @@ class get_raw_cursor(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             transaction.rollback()
-            return False # Raise the exception up ...
+            return False  # Raise the exception up ...
 
         transaction.commit_unless_managed()
+
 
 def pg_execute(proc_name, args, fetchone=False):
     with get_raw_cursor() as cursor:
@@ -30,6 +32,7 @@ def pg_execute(proc_name, args, fetchone=False):
         else:
             result = pg_run(cursor, proc_name, args).fetchone()
     return result
+
 
 def pg_run(cursor, proc_name, args=None):
     """
@@ -46,6 +49,7 @@ def pg_run(cursor, proc_name, args=None):
 # GeoTree common utils
 # ===========================================================================
 
+
 class GeoTreeError(DatabaseError):
     def __init__(self, message):
         super(GeoTreeError, self).__init__(message)
@@ -56,6 +60,7 @@ class GeoTreeError(DatabaseError):
         # e.g.: instanciate a new cls() using `error` somehow.
         # For now it just returns the exception itself
         return error
+
 
 class GeoTreeModel(models.Model):
     def save(self, *args, **kwargs):
@@ -75,13 +80,14 @@ class GeoTreeModel(models.Model):
             raise GeoTreeError.from_database_error(dberr)
 
     class Meta(object):
-        abstract=True
-        managed=False
-        app_label=u'pybab'
+        abstract = True
+        managed = False
+        app_label = u'pybab'
 
 # ===========================================================================
 # Additional data class
 # ===========================================================================
+
 
 class AdditionalData(object):
     def __init__(self):
@@ -125,3 +131,7 @@ class AdditionalData(object):
             related_object.additional_data._add_from_model(model, mapping)
             result.append(related_object)
         return result
+
+# ===========================================================================
+# Metadata superclass
+# ===========================================================================
