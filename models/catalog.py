@@ -177,6 +177,8 @@ class StatisticalTree(GeoTreeModel):
         db_table = u'gt_statistical_tree'
 
 class StatisticalMetadata(Metadata):
+    pass
+    #TODO: wait for gabri to fix the primary/foreign key thing
 
 # ===========================================================================
 # Catalog Layer
@@ -184,85 +186,78 @@ class StatisticalMetadata(Metadata):
 
 
 class CatalogLayer(CatalogModel):
-    group = models.ForeignKey('LayerGroup', default=lambda:LayerGroup.objects.get(pk=1))
+    group = models.ForeignKey('LayerGroup', default=lambda: LayerGroup.objects.get(pk=1))
+    gt_style = models.ForeignKey('Style')
     geom_column = models.TextField(null=True, blank=True)
-    ui_qtip = models.CharField(max_length=255, null=True, blank=True)
-    gs_name = models.CharField(max_length=255,
-                               verbose_name=_(u"Geoserver layer name"))
-    gs_workspace = models.CharField(max_length=255, null=True, blank=True)
+    ui_qtip = models.CharField(max_length=255, blank=True, null=True)
+    gs_name = models.CharField(max_length=255)
+    gs_workspace = models.CharField(max_length=255, blank=True, null=True)
     gs_url = models.CharField(max_length=255)
-    gs_legend_url = models.CharField(max_length=255, null=True, blank=True)
+    gs_legend_url = models.CharField(max_length=255)
 
     def import_elements_from(self, name_column, parent_column, elements_rank):
         if self.tablename is None or self.tablename == "":
             raise GeoTreeError("Can't import layer into catalog because tablename is not defined.")
-        proc_name = u'gt_layer_import'
         args = [self.pk, name_column, parent_column, elements_rank]
-        return pg_run(proc_name, args)
+        return pg_run(u'gt_layer_import', args)
 
     def to_dict(self):
         dict_temp = {'geom_column': self.geom_column,
-                     'ui_qtip':self.ui_qtip,
-                     'gs_name':self.gs_name,
-                     'gs_workspace':self.gs_workspace,
-                     'gs_url':self.gs_url,
-                     'gs_legend_url':self.gs_legend_url}
+                     'ui_qtip': self.ui_qtip,
+                     'gs_name': self.gs_name,
+                     'gs_workspace': self.gs_workspace,
+                     'gs_url': self.gs_url,
+                     'gs_legend_url': self.gs_legend_url}
 
-        return dict_join(dict_temp,super(CatalogLayer, self).to_dict())
+        return dict_join(dict_temp, super(CatalogLayer, self).to_dict())
 
     class Meta(CatalogModel.Meta):
-        db_table=u'gt_catalog_layer'
+        unique_together = ('tableschema', 'tablename', 'code_column', 'geometry_column')
+        db_table = u'gt_catalog_layer'
+
 
 class LayerGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
 
     def to_dict(self):
-        return {'id':self.id,
-                'name':self.name}
+        return {'id': self.id,
+                'name': self.name}
 
     class Meta(GroupModel.Meta):
-        db_table=u'gt_layer_group'
+        db_table = u'gt_layer_group'
 
-#WAS: class LayerTree(GroupModel):
+
 class LayerTree(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     group = models.ForeignKey(LayerGroup, unique=True, related_name="child_tree")
     parent_group = models.ForeignKey(LayerGroup, related_name="parent_tree")
 
     class Meta(GroupModel.Meta):
-        db_table=u'gt_layer_tree'
+        db_table = u'gt_layer_tree'
 
 # ===========================================================================
 # Catalog
 # ===========================================================================
+
 
 class Catalog(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     creation_time = models.DateTimeField(auto_now_add=True)
     numcode = models.IntegerField(default=0)
-    remotehost = models.CharField(max_length=255, null=True)
-    remoteport = models.IntegerField(null=True)
-    remotedb = models.CharField(max_length=255, null=True)
-    remoteuser = models.CharField(max_length=255, null=True)
-    remotepass = models.CharField(max_length=255, null=True)
-    tableschema = models.TextField(null=True)
-    tablename = models.TextField(null=True)
-    code_column = models.TextField(null=True)
-    time_column = models.TextField(null=True)
-
-    @property
-    def has_metadata(self):
-        return self.metadata_set.exists()
+    tabletype = models.TextField(choices=TABLETYPE_CHOICES, default='local')
+    tableschema = models.TextField(blank=True, null=True)
+    tablename = models.TextField(blank=True, null=True)
+    code_column = models.TextField(blank=True, null=True)
+    time_column = models.TextField(blank=True, null=True)
 
     @property
     def specific(self):
         if self.pk == 0:
             return self
 
-        subtables = [CatalogStatistical, CatalogLayer, CatalogIndicator]
-        for subtable in subtables:
+        for subtable in [CatalogStatistical, CatalogLayer]:
             try:
                 return subtable.objects.get(pk=self.pk)
             except subtable.DoesNotExist:
@@ -275,61 +270,18 @@ class Catalog(GeoTreeModel):
         raise GeoTreeError("Can not delete from gt_catalog directly")
 
     def to_dict(self):
-        return {'id':self.id,
-                'name':self.name,
-                'creation_time':self.creation_time.isoformat(),
-                'numcode':self.numcode,
-                'tableschema':self.tableschema,
-                'tablename':self.tableschema,
-                'code_column':self.code_column,
-                'time_column':self.time_column}
+        return {'id': self.id,
+                'name': self.name,
+                'creation_time': self.creation_time.isoformat(),
+                'numcode': self.numcode,
+                'tabletype': self.tabletype,
+                'tableschema': self.tableschema,
+                'tablename': self.tableschema,
+                'code_column': self.code_column,
+                'time_column': self.time_column}
 
     def __unicode__(self):
         return u"({}, {})".format(self.id, self.name)
 
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_catalog'
-
-# ===========================================================================
-# Catalog
-# ===========================================================================
-
-class Meta(GeoTreeModel):
-    id = models.AutoField(primary_key=True)
-    gt_catalog = models.ForeignKey(Catalog, unique=True, related_name="metadata_set")
-    title = models.CharField(max_length=255, null=True)
-    description = models.TextField(null=True)
-    category = models.TextField(null=True)
-    extent = models.TextField(null=True)
-    measure_unit = models.TextField(null=True)
-    author = models.TextField(null=True)
-    ref_year = models.IntegerField(null=True)
-    creation_year = models.IntegerField(null=True)
-    native_format = models.TextField(null=True)
-    genealogy = models.TextField(null=True)
-    spatial_resolution = models.TextField(null=True)
-    ref_system = models.TextField(null=True)
-    availability = models.TextField(null=True)
-    has_attributes = models.NullBooleanField(null=True)
-    source = models.TextField(null=True)
-
-    def to_dict(self):
-        return {'id':self.id,
-                'title':self.title,
-                'description':self.description,
-                'category':self.category,
-                'extent':self.extent,
-                'measure_unit':self.measure_unit,
-                'author':self.author,
-                'ref_year':self.ref_year,
-                'creation_year':self.creation_year,
-                'native_format':self.native_format,
-                'genealogy':self.genealogy,
-                'spatial_resolution':self.spatial_resolution,
-                'ref_system':self.ref_system,
-                'availability':self.availability,
-                'has_attributes':self.has_attributes,
-                'source':self.source}
-
-    class Meta(GeoTreeModel.Meta):
-        db_table = u'gt_meta'
