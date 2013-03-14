@@ -1,7 +1,7 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 from .tree import Element
-from .commons import GeoTreeModel, GeoTreeError, pg_run
+from .base import GeoTreeModel, GeoTreeError, pg_run
 from ..commons import dict_join
 from ..managers import GroupModelManager
 
@@ -45,9 +45,9 @@ class CatalogModel(GeoTreeModel):
     creation_time = models.DateTimeField(auto_now_add=True)
     numcode = models.IntegerField(default=0)
     tabletype = models.TextField(choices=TABLETYPE_CHOICES, default='local')
-    tableschema = models.TextField(blank=True, null=True)
-    tablename = models.TextField(blank=True, null=True)
-    code_column = models.TextField(blank=True, null=True)
+    #tableschema = models.TextField(blank=True, null=True)
+    #tablename = models.TextField(blank=True, null=True)
+    #code_column = models.TextField(blank=True, null=True)
     time_column = models.TextField(blank=True, null=True)
 
     @property
@@ -61,18 +61,6 @@ class CatalogModel(GeoTreeModel):
     @property
     def elements(self):
         return self.generic.elements
-
-    def to_dict(self):
-        return {'id': self.id,
-                'name': self.name,
-                'creation_time': self.creation_time.isoformat(),
-                'numcode': self.numcode,
-                'tableschema': self.tableschema,
-                'tablename': self.tableschema,
-                'code_column': self.code_column,
-                'time_column': self.time_column,
-                'has_metadata': self.generic.has_metadata,
-                'table_type': self.tabletype}
 
     def __unicode__(self):
         return u'({id}, {name})'.format(id=self.id, name=self.name)
@@ -112,10 +100,6 @@ class GroupModel(GeoTreeModel):
         return type(self).objects.filter(child_tree__parent_group=self).exclude(
                 pk=GroupModel.ROOT_ID)
 
-    def to_dict(self):
-        return {'id': self.id,
-                'name': self.name}
-
     def __unicode__(self):
         return u'({id}, {name})'.format(id=self.id, name=self.name)
 
@@ -147,11 +131,6 @@ class CatalogStatistical(CatalogModel):
     code_column = models.TextField()
     data_column = models.TextField()
 
-    def to_dict(self):
-        #TODO: replace entirely with Serializers
-        dict_temp = {'data_column': self.data_column}
-        return dict_join(dict_temp, super(CatalogStatistical, self).to_dict())
-
     class Meta(CatalogModel.Meta):
         db_table = u'gt_catalog_statistical'
 
@@ -159,10 +138,6 @@ class CatalogStatistical(CatalogModel):
 class StatisticalGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-
-    def to_dict(self):
-        return {'id': self.id,
-                'name': self.name}
 
     class Meta(GroupModel.Meta):
         db_table = u'gt_statistical_group'
@@ -186,6 +161,9 @@ class StatisticalMetadata(Metadata):
 
 
 class CatalogLayer(CatalogModel):
+    tableschema = models.TextField(blank=True, null=True)
+    tablename = models.TextField(blank=True, null=True)
+    code_column = models.TextField(blank=True, null=True)
     group = models.ForeignKey('LayerGroup', default=lambda: LayerGroup.objects.get(pk=1))
     gt_style = models.ForeignKey('Style')
     geom_column = models.TextField(null=True, blank=True)
@@ -201,28 +179,14 @@ class CatalogLayer(CatalogModel):
         args = [self.pk, name_column, parent_column, elements_rank]
         return pg_run(u'gt_layer_import', args)
 
-    def to_dict(self):
-        dict_temp = {'geom_column': self.geom_column,
-                     'ui_qtip': self.ui_qtip,
-                     'gs_name': self.gs_name,
-                     'gs_workspace': self.gs_workspace,
-                     'gs_url': self.gs_url,
-                     'gs_legend_url': self.gs_legend_url}
-
-        return dict_join(dict_temp, super(CatalogLayer, self).to_dict())
-
     class Meta(CatalogModel.Meta):
-        unique_together = ('tableschema', 'tablename', 'code_column', 'geometry_column')
+        unique_together = ('tableschema', 'tablename', 'code_column', 'geom_column')
         db_table = u'gt_catalog_layer'
 
 
 class LayerGroup(GroupModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-
-    def to_dict(self):
-        return {'id': self.id,
-                'name': self.name}
 
     class Meta(GroupModel.Meta):
         db_table = u'gt_layer_group'
@@ -269,19 +233,31 @@ class Catalog(GeoTreeModel):
     def delete(self):
         raise GeoTreeError("Can not delete from gt_catalog directly")
 
-    def to_dict(self):
-        return {'id': self.id,
-                'name': self.name,
-                'creation_time': self.creation_time.isoformat(),
-                'numcode': self.numcode,
-                'tabletype': self.tabletype,
-                'tableschema': self.tableschema,
-                'tablename': self.tableschema,
-                'code_column': self.code_column,
-                'time_column': self.time_column}
-
     def __unicode__(self):
         return u"({}, {})".format(self.id, self.name)
 
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_catalog'
+
+# ===========================================================================
+# Catalog
+# ===========================================================================
+
+
+class Style(GeoTreeModel):
+    FEATURE_TYPES = (
+        ('PL', 'polygon'),
+        ('LI', 'line'),
+        ('PN', 'point'),
+    )
+    id = models.BigIntegerField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True,
+                            verbose_name=_(u'Geoserver style name'),
+                            help_text=_(u'Automatically generated'))
+    label = models.CharField(max_length=255, verbose_name=_(u"Style Name"))
+    xml = models.TextField()
+    feature_type = models.TextField(choices=FEATURE_TYPES)
+
+    class Meta(GeoTreeModel.Meta):
+        db_table = u'gt_style'
+

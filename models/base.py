@@ -1,6 +1,9 @@
 from django.db import connection, transaction, DatabaseError
 from django.contrib.gis.db import models
 
+from hive.extra.django import DjangoModelSerializer
+from hive.decorators import serializable
+
 # ===========================================================================
 # Raw cursor related stuff
 # ===========================================================================
@@ -62,6 +65,7 @@ class GeoTreeError(DatabaseError):
         return error
 
 
+@serializable(DjangoModelSerializer())
 class GeoTreeModel(models.Model):
     def save(self, *args, **kwargs):
         for field in self._meta.fields:

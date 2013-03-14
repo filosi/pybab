@@ -7,4 +7,4 @@ from .tree import Label, Element
 from .indicators import Indicator, IndicatorGroup, IndicatorTree
 from .catalog import CatalogStatistical, StatisticalGroup, StatisticalTree
 from .catalog import CatalogLayer, LayerGroup, LayerTree
-from .catalog import Catalog
+from .catalog import Style, Catalog

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url#, include
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns('pybab.api',
     #styles
@@ -11,14 +11,13 @@ urlpatterns = patterns('pybab.api',
     url(r'^statistical/$', 'views.catalog_statistical'),
     url(r'^statistical/(?P<index>\d+)/$', 'views.catalog_statistical'),
     #catalog indicator
-    url(r'^indicator/$', 'views.catalog_indicator'),
-    url(r'^indicator/(?P<index>\d+)/$', 'views.catalog_indicator'),
+    # url(r'^indicator/$', 'views.catalog_indicator'),
+    # url(r'^indicator/(?P<index>\d+)/$', 'views.catalog_indicator'),
     #metadata
-    url(r'^metadata/(?P<index>\d+)/$', 'views.metadata'),
+    # url(r'^metadata/(?P<index>\d+)/$', 'views.metadata'),
 )
 
-
-from django.conf import settings
-if getattr(settings, 'DEBUG', False):
-    urlpatterns += patterns('',
-                            url(r'layer/form/', 'pybab.api.views.new_layer_views.layer_form'))
+#
+# from django.conf import settings
+# if getattr(settings, 'DEBUG', False):
+#     urlpatterns += patterns('', url(r'layer/form/', 'pybab.api.views.new_layer_views.layer_form'))

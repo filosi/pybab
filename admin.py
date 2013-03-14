@@ -1,10 +1,9 @@
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
-from .forms import LayerGroupForm, IndicatorGroupForm, StatisticalGroupForm
-from .forms import CatalogLayerForm, CatalogIndicatorForm, CatalogStatisticalForm
-from django import forms
-from .models import Element, CatalogLayer, CatalogStatistical, CatalogIndicator
-from .models import LayerGroup, IndicatorGroup, StatisticalGroup
+from .forms import LayerGroupForm, StatisticalGroupForm
+from .forms import CatalogLayerForm, CatalogStatisticalForm
+from .models import Element, CatalogLayer, CatalogStatistical
+from .models import LayerGroup, StatisticalGroup
 
 class LayerChangeList(ChangeList):
     def results(self):
@@ -27,26 +26,26 @@ class LayerGroupAdmin(admin.ModelAdmin):
             form.base_fields['parent'].initial = obj.parent.id
         return form
 
-class IndicatorChangeList(ChangeList):
-    def results(self):
-        return IndicatorGroup.objects.tree_sorted_levels()
+# class IndicatorChangeList(ChangeList):
+#     def results(self):
+#         return IndicatorGroup.objects.tree_sorted_levels()
 
-class IndicatorGroupAdmin(admin.ModelAdmin):
-    form = IndicatorGroupForm
-
-    def get_changelist(self,request, **kwargs):
-        return IndicatorChangeList
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(IndicatorGroupAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['parent'].choices=\
-            IndicatorGroup.objects.subtree_sorted_indented(
-                parent=IndicatorGroup.objects.get(id=IndicatorGroup.ROOT_ID),
-                to_exclude=(obj,)
-                )
-        if obj and obj.parent:
-            form.base_fields['parent'].initial = obj.parent.id
-        return form
+# class IndicatorGroupAdmin(admin.ModelAdmin):
+#     form = IndicatorGroupForm
+#
+#     def get_changelist(self,request, **kwargs):
+#         return IndicatorChangeList
+#
+#     def get_form(self, request, obj=None, **kwargs):
+#         form = super(IndicatorGroupAdmin, self).get_form(request, obj, **kwargs)
+#         form.base_fields['parent'].choices=\
+#             IndicatorGroup.objects.subtree_sorted_indented(
+#                 parent=IndicatorGroup.objects.get(id=IndicatorGroup.ROOT_ID),
+#                 to_exclude=(obj,)
+#                 )
+#         if obj and obj.parent:
+#             form.base_fields['parent'].initial = obj.parent.id
+#         return form
 
 class StatisticalChangeList(ChangeList):
     def results(self):
@@ -95,23 +94,23 @@ class CatalogStatisticalAdmin(admin.ModelAdmin):
             form.base_fields['group'].initial = obj.group
         return form
 
-class CatalogIndicatorAdmin(admin.ModelAdmin):
-    form = CatalogIndicatorForm
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(CatalogIndicatorAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['group'].choices=\
-            IndicatorGroup.objects.subtree_sorted_indented(
-                parent=IndicatorGroup.objects.get(id=IndicatorGroup.ROOT_ID),
-                )
-        if obj:
-            form.base_fields['group'].initial = obj.group
-        return form
+# class CatalogIndicatorAdmin(admin.ModelAdmin):
+#     form = CatalogIndicatorForm
+#
+#     def get_form(self, request, obj=None, **kwargs):
+#         form = super(CatalogIndicatorAdmin, self).get_form(request, obj, **kwargs)
+#         form.base_fields['group'].choices=\
+#             IndicatorGroup.objects.subtree_sorted_indented(
+#                 parent=IndicatorGroup.objects.get(id=IndicatorGroup.ROOT_ID),
+#                 )
+#         if obj:
+#             form.base_fields['group'].initial = obj.group
+#         return form
 
 admin.site.register(Element)
 admin.site.register(CatalogLayer, CatalogLayerAdmin)
 admin.site.register(CatalogStatistical, CatalogStatisticalAdmin)
-admin.site.register(CatalogIndicator, CatalogIndicatorAdmin)
+# admin.site.register(CatalogIndicator, CatalogIndicatorAdmin)
 admin.site.register(LayerGroup, LayerGroupAdmin)
-admin.site.register(IndicatorGroup, IndicatorGroupAdmin)
+# admin.site.register(IndicatorGroup, IndicatorGroupAdmin)
 admin.site.register(StatisticalGroup, StatisticalGroupAdmin)
