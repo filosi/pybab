@@ -6,6 +6,7 @@ from tojson import login_required_json
 
 from ..models import get_system_catalogs, get_user_catalogs
 
+
 def _to_dict(model_instance, *args):
     result = model_instance.to_dict()
     for arg in args:
@@ -14,6 +15,7 @@ def _to_dict(model_instance, *args):
         else:
             result.update(arg)
     return result
+
 
 def get_subtree_for(user, group_index, group_class, catalog_class, extra_data=None):
     """

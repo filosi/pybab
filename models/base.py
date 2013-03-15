@@ -65,7 +65,6 @@ class GeoTreeError(DatabaseError):
         return error
 
 
-@serializable(DjangoModelSerializer())
 class GeoTreeModel(models.Model):
     def save(self, *args, **kwargs):
         for field in self._meta.fields:
@@ -77,9 +76,9 @@ class GeoTreeModel(models.Model):
         except DatabaseError as dberr:
             raise GeoTreeError.from_database_error(dberr)
 
-    def delete(self):
+    def delete(self, using=None):
         try:
-            super(GeoTreeModel, self).delete()
+            super(GeoTreeModel, self).delete(using=using)
         except DatabaseError as dberr:
             raise GeoTreeError.from_database_error(dberr)
 

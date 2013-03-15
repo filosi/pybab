@@ -27,7 +27,7 @@ def catalog_layer(request, index=0):
         #     return {'id':instance.id*MAX_LAYER_GROUPS,
         #             'real_id':instance.id}
 
-        return get_subtree_for(user, index, LayerGroup, CatalogLayer, extra_data=(get_style, alter_id, {'checked': False}))
+        return get_subtree_for(user, index, LayerGroup, CatalogLayer, extra_data=({'checked': False}))#extra_data=(get_style, alter_id, {'checked': False}))
     elif request.method == 'POST':
         return _upload_layer(request, user)
     elif request.method == 'DELETE':

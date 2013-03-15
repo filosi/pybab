@@ -16,11 +16,13 @@ from ..layer_lib.shape_utils import _unzip_save, _upload2pg, \
 # TODO: change UserStyle to UserStyleLink
 from ..models import UserStyle, UserLayerLink, CatalogShape
 
+
 def _instantiate_pg2geoserver():
     geoserver_url = layer_settings.GEOSERVER_URL
     username = layer_settings.GEOSERVER_USER
     password = layer_settings.GEOSERVER_PASSWORD
     return Pg2Geoserver(geoserver_url,username,password)
+
 
 class UserStyleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -28,7 +30,8 @@ class UserStyleForm(forms.ModelForm):
         super(UserStyleForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        """Validates the xml indexing it on the geoserver
+        """
+        Validates the xml indexing it on the geoserver
         Maybe it should be refactorized cause it has side effects
         on the geoserver... This implementation tries to avoid
         side effects problems.

@@ -2,6 +2,7 @@ from django import forms
 from .models import CatalogLayer, CatalogStatistical, Indicator
 from pybab.models import LayerGroup, IndicatorGroup, StatisticalGroup
 
+
 class LayerGroupForm(forms.ModelForm):
     parent = forms.ChoiceField()
 

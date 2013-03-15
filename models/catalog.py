@@ -1,16 +1,21 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from hive.decorators import serializable
+from hive.extra.django import DjangoModelSerializer
+
 from .tree import Element
 from .base import GeoTreeModel, GeoTreeError, pg_run
-from ..commons import dict_join
 from ..managers import GroupModelManager
+from ..modifiers import add_leaf, add_has_meta
+
 
 # ===========================================================================
 # Utilities
 # ===========================================================================
 
 
-class Metadata(GeoTreeModel):
+class GenericMetadata(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -39,6 +44,10 @@ TABLETYPE_CHOICES = (
 )
 
 
+#TODO: change to_dict after rewrite
+@serializable(DjangoModelSerializer([add_leaf(False), add_has_meta]),
+              'serializer',
+              'to_dict')
 class CatalogModel(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -69,7 +78,13 @@ class CatalogModel(GeoTreeModel):
         abstract = True
 
 
+@serializable(DjangoModelSerializer([add_leaf(True)]),
+              'serializer',
+              'to_dict')
 class GroupModel(GeoTreeModel):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+
     ROOT_ID = 0
 
     objects = GroupModelManager()
@@ -136,9 +151,6 @@ class CatalogStatistical(CatalogModel):
 
 
 class StatisticalGroup(GroupModel):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-
     class Meta(GroupModel.Meta):
         db_table = u'gt_statistical_group'
 
@@ -151,9 +163,12 @@ class StatisticalTree(GeoTreeModel):
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_statistical_tree'
 
-class StatisticalMetadata(Metadata):
-    pass
-    #TODO: wait for gabri to fix the primary/foreign key thing
+
+class StatisticalMeta(GenericMetadata):
+    statistical = models.OneToOneField('CatalogStatistical', related_name='meta')
+
+    class Meta(GenericMetadata.Meta):
+        db_table = u'gt_statistical_meta'
 
 # ===========================================================================
 # Catalog Layer
@@ -185,9 +200,6 @@ class CatalogLayer(CatalogModel):
 
 
 class LayerGroup(GroupModel):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-
     class Meta(GroupModel.Meta):
         db_table = u'gt_layer_group'
 
@@ -199,6 +211,13 @@ class LayerTree(GeoTreeModel):
 
     class Meta(GroupModel.Meta):
         db_table = u'gt_layer_tree'
+
+
+class LayerMeta(GenericMetadata):
+    layer = models.OneToOneField('CatalogLayer', related_name='meta')
+
+    class Meta(GenericMetadata.Meta):
+        db_table = u'gt_layer_meta'
 
 # ===========================================================================
 # Catalog
@@ -230,7 +249,7 @@ class Catalog(GeoTreeModel):
     def save(self, force_insert=False, force_update=False):
         raise GeoTreeError("Can not update gt_catalog directly")
 
-    def delete(self):
+    def delete(self, using=None):
         raise GeoTreeError("Can not delete from gt_catalog directly")
 
     def __unicode__(self):

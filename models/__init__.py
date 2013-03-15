@@ -3,6 +3,7 @@ __all__ = ['Label', 'Element', 'Meta',
            'CatalogStatistical', 'StatisticalGroup', 'StatisticalTree',
            'CatalogLayer', 'LayerGroup', 'LayerTree']
 
+from .base import GeoTreeModel
 from .tree import Label, Element
 from .indicators import Indicator, IndicatorGroup, IndicatorTree
 from .catalog import CatalogStatistical, StatisticalGroup, StatisticalTree

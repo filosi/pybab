@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 
-from pybab.models import CatalogLayer, Style
+from pybab.models import GeoTreeModel, CatalogLayer, Style
 from pybab.api import layer_settings
 from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from pybab.api.layer_lib import shape_utils
