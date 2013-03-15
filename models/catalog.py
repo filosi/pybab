@@ -103,9 +103,9 @@ class GroupModel(GeoTreeModel):
     @parent.setter
     def parent(self, newparent):
         if self.is_root:
-            raise RuntimeError('can not modify parent for root element')
+            raise GeoTreeError('can not modify parent for root element')
         elif self.pk is None:
-            raise Exception('can not set parent for unsaved objects')
+            raise GeoTreeError('can not set parent for unsaved objects')
         else:
             self.child_tree.all().delete()
             self.child_tree.create(group=self, parent_group=newparent)
@@ -253,7 +253,7 @@ class Catalog(GeoTreeModel):
         raise GeoTreeError("Can not delete from gt_catalog directly")
 
     def __unicode__(self):
-        return u"({}, {})".format(self.id, self.name)
+        return u"({0}, {1})".format(self.id, self.name)
 
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_catalog'

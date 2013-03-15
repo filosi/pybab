@@ -68,8 +68,21 @@ class StatisticalGroupAdmin(admin.ModelAdmin):
             form.base_fields['parent'].initial = obj.parent.id
         return form
 
+def catalog_and_group(obj):
+    return (u"%s <span style='margin-left: 30%%;left:0px;position:absolute;'>Path: %s</span>" % (obj, obj.group.path))
+catalog_and_group.allow_tags = True
+catalog_and_group.short_description = "CatalogLayer"
+
+class CatalogChangeList(ChangeList):
+    def get_query_set(self, request):
+        queryset = super(CatalogChangeList, self).get_query_set(request)
+        return queryset.order_by("group__pk")
 class CatalogLayerAdmin(admin.ModelAdmin):
     form = CatalogLayerForm
+    list_display = (catalog_and_group, )
+
+    def get_changelist(self,request, **kwargs):
+        return CatalogChangeList
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(CatalogLayerAdmin, self).get_form(request, obj, **kwargs)
@@ -83,6 +96,10 @@ class CatalogLayerAdmin(admin.ModelAdmin):
 
 class CatalogStatisticalAdmin(admin.ModelAdmin):
     form = CatalogStatisticalForm
+    list_display = (catalog_and_group, )
+
+    def get_changelist(self,request, **kwargs):
+        return CatalogChangeList
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(CatalogStatisticalAdmin, self).get_form(request, obj, **kwargs)

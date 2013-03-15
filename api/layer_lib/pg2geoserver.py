@@ -100,6 +100,7 @@ class Pg2Geoserver(object):
     def delete_layer(self, layer_name):
         """Deletes the layer with the given name from geoserver"""
         headers = {'Content-type' : 'text/xml'}
+        layer_name = layer_name.encode('ascii', 'ignore')
         url = urlparse.urljoin(self.geoserver_url,
                                os.path.join("/geoserver/rest/layers/",
                                             urllib.quote_plus(layer_name))

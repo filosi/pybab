@@ -1,4 +1,4 @@
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.utils.translation import ugettext as _
 
 from tojson import render_to_json
@@ -6,7 +6,7 @@ from pybab.models import CatalogLayer, LayerGroup
 
 from .commons import login_required_json_default, get_subtree_for
 from ..forms import ShapeForm
-from ..layer_settings import MAX_LAYER_UPLOADS, MAX_LAYER_GROUPS
+from ..api_settings import MAX_LAYER_UPLOADS, MAX_GROUPS
 
 
 @login_required_json_default
@@ -40,7 +40,7 @@ def catalog_layer(request, index=0):
 
 def _upload_layer(request, user):
     if user.userlayerlink_set.count() > MAX_LAYER_UPLOADS:
-        error_msg = u"too many layers uploaded. max number is {}".format(
+        error_msg = u"too many layers uploaded. max number is {0}".format(
                 MAX_LAYER_UPLOADS)
         return {'success':False,
                 'message':_(error_msg)}, {'cls':HttpResponseForbidden}
@@ -54,7 +54,7 @@ def _upload_layer(request, user):
 
 
 def _delete_layer(user, index):
-    real_id = index / MAX_LAYER_GROUPS
+    real_id = index / MAX_GROUPS
     try:
         catalog_layer = CatalogLayer.objects.get(pk=real_id)
     except CatalogLayer.DoesNotExist:

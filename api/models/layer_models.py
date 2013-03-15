@@ -7,15 +7,15 @@ from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 
 from pybab.models import GeoTreeModel, CatalogLayer, Style
-from pybab.api import layer_settings
+from pybab.api import api_settings
 from pybab.api.layer_lib.pg2geoserver import Pg2Geoserver
 from pybab.api.layer_lib import shape_utils
 
 
 def _instantiate_pg2geoserver():
-    geoserver_url = layer_settings.GEOSERVER_URL
-    username = layer_settings.GEOSERVER_USER
-    password = layer_settings.GEOSERVER_PASSWORD
+    geoserver_url = api_settings.GEOSERVER_URL
+    username = api_settings.GEOSERVER_USER
+    password = api_settings.GEOSERVER_PASSWORD
     return Pg2Geoserver(geoserver_url, username, password)
 
 
@@ -72,16 +72,15 @@ class CatalogShape(CatalogLayer):
         app_label = u'api'
         proxy = True
 
-
-@receiver(pre_delete, sender=CatalogLayer)
 def cataloglayer_delete_handler(sender, **kwargs):
     catalogLayer = kwargs['instance']
     shape_utils._delete_layer_postgis(catalogLayer.tableschema,
                                       catalogLayer.tablename)
     shape_utils._remove_layer_geoserver(catalogLayer)
 
+pre_delete.connect(cataloglayer_delete_handler, sender=CatalogLayer)
+pre_delete.connect(cataloglayer_delete_handler, sender=CatalogShape)
 
-@receiver(pre_save, sender=CatalogLayer)
 def catalogLayer_update_handler(sender, **kwargs):
     new_catalogLayer = kwargs['instance']
     if new_catalogLayer.id:
@@ -92,3 +91,6 @@ def catalogLayer_update_handler(sender, **kwargs):
         shape_utils._delete_layer_postgis(catalogLayer.tableschema,
                                           catalogLayer.tablename)
         shape_utils._remove_layer_geoserver(catalogLayer)
+
+pre_delete.connect(catalogLayer_update_handler, sender=CatalogLayer)
+pre_delete.connect(catalogLayer_update_handler, sender=CatalogShape)
