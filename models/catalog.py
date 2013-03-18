@@ -7,14 +7,13 @@ from hive.extra.django import DjangoModelSerializer
 from .tree import Element
 from .base import GeoTreeModel, GeoTreeError, pg_run
 from ..managers import GroupModelManager
-from ..modifiers import add_leaf, add_has_meta
 
 
 # ===========================================================================
 # Utilities
 # ===========================================================================
 
-
+@serializable(DjangoModelSerializer())
 class GenericMetadata(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -45,9 +44,7 @@ TABLETYPE_CHOICES = (
 
 
 #TODO: change to_dict after rewrite
-@serializable(DjangoModelSerializer([add_leaf(False), add_has_meta]),
-              'serializer',
-              'to_dict')
+@serializable(DjangoModelSerializer())
 class CatalogModel(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -78,9 +75,7 @@ class CatalogModel(GeoTreeModel):
         abstract = True
 
 
-@serializable(DjangoModelSerializer([add_leaf(True)]),
-              'serializer',
-              'to_dict')
+@serializable(DjangoModelSerializer())
 class GroupModel(GeoTreeModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -180,7 +175,7 @@ class CatalogLayer(CatalogModel):
     tablename = models.TextField(blank=True, null=True)
     code_column = models.TextField(blank=True, null=True)
     group = models.ForeignKey('LayerGroup', default=lambda: LayerGroup.objects.get(pk=1))
-    gt_style = models.ForeignKey('Style')
+    gt_style = models.ForeignKey('Style', null=True, default=lambda: None)
     geom_column = models.TextField(null=True, blank=True)
     ui_qtip = models.CharField(max_length=255, blank=True, null=True)
     gs_name = models.CharField(max_length=255)
@@ -269,7 +264,7 @@ class Style(GeoTreeModel):
         ('LI', 'line'),
         ('PN', 'point'),
     )
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, unique=True,
                             verbose_name=_(u'Geoserver style name'),
                             help_text=_(u'Automatically generated'))

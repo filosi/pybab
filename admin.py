@@ -3,7 +3,7 @@ from django.contrib.admin.views.main import ChangeList
 from .forms import LayerGroupForm, StatisticalGroupForm
 from .forms import CatalogLayerForm, CatalogStatisticalForm
 from .models import Element, CatalogLayer, CatalogStatistical
-from .models import LayerGroup, StatisticalGroup
+from .models import LayerGroup, StatisticalGroup, Style
 
 class LayerChangeList(ChangeList):
     def results(self):
@@ -131,3 +131,4 @@ admin.site.register(CatalogStatistical, CatalogStatisticalAdmin)
 admin.site.register(LayerGroup, LayerGroupAdmin)
 # admin.site.register(IndicatorGroup, IndicatorGroupAdmin)
 admin.site.register(StatisticalGroup, StatisticalGroupAdmin)
+admin.site.register(Style)

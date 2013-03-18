@@ -21,12 +21,11 @@ def catalog_statistical(request, index=0):
             return {'success': True}
         else:
             return {'success': False,
-                    'message': statistical_form.errors }, { 'cls': HttpResponseBadRequest}   
+                    'message': statistical_form.errors}, {'cls': HttpResponseBadRequest}
     else:
-        error_msg = u"request type \"{req_type}\"is not supported".format(
-                req_type=request.method)
-        return {'success' : False,
-                'message' : _(error_msg)}, {'cls':HttpResponseForbidden} 
+        error_msg = u"request type \"{req_type}\"is not supported".format(req_type=request.method)
+        return {'success': False,
+                'message': _(error_msg)}, {'cls': HttpResponseForbidden}
 
                      
 

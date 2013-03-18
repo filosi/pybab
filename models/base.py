@@ -1,13 +1,10 @@
 from django.db import connection, transaction, DatabaseError
 from django.contrib.gis.db import models
 
-from hive.extra.django import DjangoModelSerializer
-from hive.decorators import serializable
 
 # ===========================================================================
 # Raw cursor related stuff
 # ===========================================================================
-
 
 class get_raw_cursor(object):
     def __init__(self, cursor_name=None):
@@ -48,10 +45,10 @@ def pg_run(cursor, proc_name, args=None):
     cursor.callproc(proc_name, args)
     return cursor
 
+
 # ===========================================================================
 # GeoTree common utils
 # ===========================================================================
-
 
 class GeoTreeError(DatabaseError):
     def __init__(self, message):
@@ -87,10 +84,10 @@ class GeoTreeModel(models.Model):
         managed = False
         app_label = u'pybab'
 
+
 # ===========================================================================
 # Additional data class
 # ===========================================================================
-
 
 class AdditionalData(object):
     def __init__(self):
@@ -134,7 +131,3 @@ class AdditionalData(object):
             related_object.additional_data._add_from_model(model, mapping)
             result.append(related_object)
         return result
-
-# ===========================================================================
-# Metadata superclass
-# ===========================================================================
