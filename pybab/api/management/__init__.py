@@ -4,6 +4,7 @@ from pybab.api import api_settings
 from django.db import connection, transaction
 import django.db.utils
 
+
 def my_callback(sender, **kwargs):
     cursor = connection.cursor()
     print "Setting up pybab.api ..."
