@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.db.models import Q
-from .commons import get_raw_cursor, AdditionalData, GeoTreeModel, pg_execute
+from .base import get_raw_cursor, AdditionalData, GeoTreeModel, pg_execute
 
 # ===========================================================================
 # Element to Label link (with validity)
@@ -25,7 +25,7 @@ class Attribute(GeoTreeModel):
             return queryset.all()
 
     def __unicode__(self):
-        return u"{}, {}".format(
+        return u"{0}, {1}".format(
                 self.timestart.isoformat(),
                 self.timeend.isoformat())
 

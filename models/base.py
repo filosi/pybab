@@ -1,6 +1,7 @@
 from django.db import connection, transaction, DatabaseError
 from django.contrib.gis.db import models
 
+
 # ===========================================================================
 # Raw cursor related stuff
 # ===========================================================================
@@ -19,9 +20,10 @@ class get_raw_cursor(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             transaction.rollback()
-            return False # Raise the exception up ...
+            return False  # Raise the exception up ...
 
         transaction.commit_unless_managed()
+
 
 def pg_execute(proc_name, args, fetchone=False):
     with get_raw_cursor() as cursor:
@@ -30,6 +32,7 @@ def pg_execute(proc_name, args, fetchone=False):
         else:
             result = pg_run(cursor, proc_name, args).fetchone()
     return result
+
 
 def pg_run(cursor, proc_name, args=None):
     """
@@ -41,6 +44,7 @@ def pg_run(cursor, proc_name, args=None):
         args = []
     cursor.callproc(proc_name, args)
     return cursor
+
 
 # ===========================================================================
 # GeoTree common utils
@@ -57,6 +61,7 @@ class GeoTreeError(DatabaseError):
         # For now it just returns the exception itself
         return error
 
+
 class GeoTreeModel(models.Model):
     def save(self, *args, **kwargs):
         for field in self._meta.fields:
@@ -68,16 +73,17 @@ class GeoTreeModel(models.Model):
         except DatabaseError as dberr:
             raise GeoTreeError.from_database_error(dberr)
 
-    def delete(self):
+    def delete(self, using=None):
         try:
-            super(GeoTreeModel, self).delete()
+            super(GeoTreeModel, self).delete(using=using)
         except DatabaseError as dberr:
             raise GeoTreeError.from_database_error(dberr)
 
     class Meta(object):
-        abstract=True
-        managed=False
-        app_label=u'pybab'
+        abstract = True
+        managed = False
+        app_label = u'pybab'
+
 
 # ===========================================================================
 # Additional data class
