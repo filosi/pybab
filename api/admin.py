@@ -24,16 +24,16 @@ class CatalogShapeAdmin(admin.ModelAdmin):
     form = ShapeForm
     readonly_fields = ('gs_name',)
 
-class UserStyleAdmin(admin.ModelAdmin):
-    form = AdminStyleForm
-    readonly_fields = ('name',)
+# class UserStyleAdmin(admin.ModelAdmin):
+#     form = AdminStyleForm
+#     readonly_fields = ('name',)
+#
+#     def get_form(self, request, obj=None, **kwargs):
+#          form = super(UserStyleAdmin, self).get_form(request, obj, **kwargs)
+#          form.current_user = request.user
+#          return form
 
-    def get_form(self, request, obj=None, **kwargs):
-         form = super(UserStyleAdmin, self).get_form(request, obj, **kwargs)
-         form.current_user = request.user
-         return form
-
-admin.site.register(UserStyle, UserStyleAdmin)
+# admin.site.register(UserStyle, UserStyleAdmin)
 admin.site.register(CatalogShape, CatalogShapeAdmin)
 
 admin.site.register(UserStatisticalLink)

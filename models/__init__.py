@@ -1,11 +1,11 @@
-__all__ = [ 'Label', 'Element',
-            'CatalogIndicator', 'IndicatorGroup', 'IndicatorTree',
-            'CatalogStatistical', 'StatisticalGroup', 'StatisticalTree',
-            'CatalogLayer', 'LayerGroup', 'LayerTree',
-            'Catalog', 'Meta']
+__all__ = ['Label', 'Element', 'Meta',
+           'Indicator', 'IndicatorGroup', 'IndicatorTree',
+           'CatalogStatistical', 'StatisticalGroup', 'StatisticalTree',
+           'CatalogLayer', 'LayerGroup', 'LayerTree']
 
+from .base import GeoTreeModel
 from .tree import Label, Element
-from .catalog import CatalogIndicator, IndicatorGroup, IndicatorTree
+from .indicators import Indicator, IndicatorGroup, IndicatorTree
 from .catalog import CatalogStatistical, StatisticalGroup, StatisticalTree
 from .catalog import CatalogLayer, LayerGroup, LayerTree
-from .catalog import Catalog, Meta
+from .catalog import Style, Catalog

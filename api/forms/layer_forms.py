@@ -10,17 +10,19 @@ from django.utils.translation import ugettext_lazy as _
 from pybab.models import LayerGroup
 
 from ..layer_lib.pg2geoserver import Pg2Geoserver
-from .. import layer_settings
+from .. import api_settings
 from ..layer_lib.shape_utils import _unzip_save, _upload2pg, \
                                      _toGeoserver, _delete_layer_postgis
 # TODO: change UserStyle to UserStyleLink
 from ..models import UserStyle, UserLayerLink, CatalogShape
 
+
 def _instantiate_pg2geoserver():
-    geoserver_url = layer_settings.GEOSERVER_URL
-    username = layer_settings.GEOSERVER_USER
-    password = layer_settings.GEOSERVER_PASSWORD
+    geoserver_url = api_settings.GEOSERVER_URL
+    username = api_settings.GEOSERVER_USER
+    password = api_settings.GEOSERVER_PASSWORD
     return Pg2Geoserver(geoserver_url,username,password)
+
 
 class UserStyleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -28,7 +30,8 @@ class UserStyleForm(forms.ModelForm):
         super(UserStyleForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        """Validates the xml indexing it on the geoserver
+        """
+        Validates the xml indexing it on the geoserver
         Maybe it should be refactorized cause it has side effects
         on the geoserver... This implementation tries to avoid
         side effects problems.
@@ -40,9 +43,11 @@ class UserStyleForm(forms.ModelForm):
 
         label = cleaned_data["label"]
         if self.user:
-            self.name = label + str(self.user.id) + str(int(time.time()))
+            self.name = label.encode('ascii', 'ignore') \
+                        + str(self.user.id) + str(int(time.time()))
         else:
-            self.name = label + "_adm_" + str(int(time.time()))
+            self.name = label.encode('ascii', 'ignore') \
+                        + "_adm_" + str(int(time.time()))
         try:
             p2g.create_style(self.name, cleaned_data["xml"])
         except urllib2.HTTPError as e:
@@ -96,20 +101,20 @@ class ShapeForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         kwargs["instance"].remotehost = settings.DATABASES['default']['HOST']
         kwargs["instance"].remotedb = settings.DATABASES['default']['NAME']
-        kwargs["instance"].remoteport = settings.DATABASES['default']['PORT']
+        kwargs["instance"].remoteport = int(settings.DATABASES['default']['PORT'])
         kwargs["instance"].remoteuser = settings.DATABASES['default']['USER']
         kwargs["instance"].remotepass =settings.DATABASES['default']['PASSWORD']
         if self.user:
             kwargs["instance"].tableschema = \
-                layer_settings.SCHEMA_USER_UPLOADS
+                api_settings.SCHEMA_USER_UPLOADS
             kwargs["instance"].gs_workspace = \
-                layer_settings.WORKSPACE_USER_UPLOADS
+                api_settings.WORKSPACE_USER_UPLOADS
         else:
             kwargs["instance"].tableschema = \
-                layer_settings.SCHEMA_ADMIN_UPLOADS
+                api_settings.SCHEMA_ADMIN_UPLOADS
             kwargs["instance"].gs_workspace = \
-                layer_settings.WORKSPACE_ADMIN_UPLOADS
-        kwargs["instance"].gs_url = layer_settings.GEOSERVER_PUBLIC_PATH
+                api_settings.WORKSPACE_ADMIN_UPLOADS
+        kwargs["instance"].gs_url = api_settings.GEOSERVER_PUBLIC_PATH
         kwargs["instance"].geom_column = "wkb_geometry"
         kwargs["instance"].layergroup = LayerGroup.objects.get(pk=0)
 
@@ -132,9 +137,11 @@ class ShapeForm(forms.ModelForm):
 
         layer_label = self.cleaned_data["name"]
         if self.user:
-            layer_id = layer_label + str(self.user.id) + str(int(time.time()))
+            layer_id = layer_label.encode('ascii', 'ignore') \
+                       + str(self.user.id) + str(int(time.time()))
         else:
-            layer_id = layer_label + "_adm_" + str(int(time.time()))
+            layer_id = layer_label.encode('ascii', 'ignore') \
+                       + "_adm_" + str(int(time.time()))
         self.layer_id = layer_id
 
         #unzip the file
@@ -144,11 +151,11 @@ class ShapeForm(forms.ModelForm):
         #store the shape in postgis
         if self.user:
             res = _upload2pg(dir,
-                             layer_settings.SCHEMA_USER_UPLOADS,
+                             api_settings.SCHEMA_USER_UPLOADS,
                              self.cleaned_data['epsg_code'])
         else:
             res = _upload2pg(dir,
-                             layer_settings.SCHEMA_ADMIN_UPLOADS,
+                             api_settings.SCHEMA_ADMIN_UPLOADS,
                              self.cleaned_data['epsg_code'])
         #delete directory with the shape
         shutil.rmtree(dir)
@@ -165,10 +172,10 @@ class ShapeForm(forms.ModelForm):
                 res = _toGeoserver(layer_id,True)
             if not res==True:
                 if self.user:
-                    _delete_layer_postgis(layer_settings.SCHEMA_USER_UPLOADS,
+                    _delete_layer_postgis(api_settings.SCHEMA_USER_UPLOADS,
                                           layer_id)
                 else:
-                    _delete_layer_postgis(layer_settings.SCHEMA_ADMIN_UPLOADS,
+                    _delete_layer_postgis(api_settings.SCHEMA_ADMIN_UPLOADS,
                                           layer_id)
                 msg = "Failed to index the layer on geoserver."
                 msg += "The reason was: "+str(res)
