@@ -4,7 +4,7 @@ Installation:
 - Install geotree_core, geotree_api_core and geotree_django in a postgresql database with postgis.
   Postgres must be at least version 9.2 and postgis must be at least version 2.0
 
--Install the package in python:
+- Install the package in python:
 ```bash
 python setup.py install
 ```
