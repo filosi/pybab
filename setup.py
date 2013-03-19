@@ -15,6 +15,6 @@ setup(
         'Framework :: Django',
     ],
     requires=["django", "hive"],
-    dependency_links=["git://github.com/MPBAUnofficial/hive.git@develop#egg=hive"],
+    dependency_links=["https://github.com/MPBAUnofficial/hive/tarball/develop#egg=hive"]
 )
 
