@@ -2,5 +2,6 @@
 #gdal
 #psycopg2
 django >1.4, <1.5
--e git+https://github.com/davidek/django-tojson.git#egg=tojson
--e git+https://github.com/MPBAUnofficial/hive.git@develop#egg=hive
+#git+https://github.com/davidek/django-tojson.git#egg=tojson
+https://github.com/davidek/django-tojson/tarball/master#egg=tojson
+https://github.com/MPBAUnofficial/hive/tarball/develop#egg=hive

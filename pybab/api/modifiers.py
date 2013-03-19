@@ -1,18 +1,17 @@
+from django.core.exceptions import ObjectDoesNotExist
 from .api_settings import MAX_GROUPS
 
-
-def add_has_meta(obj, current, *args, **kwargs):
-    has_meta = True
+def add_metadata(obj, current, *args, **kwargs):
     try:
-        obj.meta
-    except obj.DoesNotExists:
-        has_meta = False
+        metadata = obj.metadata.serialize()
+    except ObjectDoesNotExist:
+        metadata = None
 
-    current['has_meta'] = has_meta
+    current['metadata'] = metadata
     return current
 
 
-def get_style(obj, current, *args, **kwargs):
+def add_style(obj, current, *args, **kwargs):
     if obj.related_user_set.exists():
         #unique force this to be only one
         current['style'] = obj.related_user_set.all()[0].style.name

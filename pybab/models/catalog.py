@@ -160,7 +160,7 @@ class StatisticalTree(GeoTreeModel):
 
 
 class StatisticalMeta(GenericMetadata):
-    statistical = models.OneToOneField('CatalogStatistical', related_name='meta')
+    statistical = models.OneToOneField('CatalogStatistical', related_name='metadata')
 
     class Meta(GenericMetadata.Meta):
         db_table = u'gt_statistical_meta'
@@ -209,7 +209,7 @@ class LayerTree(GeoTreeModel):
 
 
 class LayerMeta(GenericMetadata):
-    layer = models.OneToOneField('CatalogLayer', related_name='meta')
+    layer = models.OneToOneField('CatalogLayer', related_name='metadata')
 
     class Meta(GenericMetadata.Meta):
         db_table = u'gt_layer_meta'

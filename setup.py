@@ -1,8 +1,8 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(
-    name="hive",
-    version=open("VERSION").read(),
+    name="pybab",
+    version=open("VERSION").read().strip('\n'),
     description=open("README.md", 'r').read(),
     url="https://github.com/MPBAUnofficial/pybab",
     author="Roberto Bampi",
@@ -14,7 +14,8 @@ setup(
         'Operating System :: OS Indipendent',
         'Framework :: Django',
     ],
-    requires=["django", "hive"],
-    dependency_links=["https://github.com/MPBAUnofficial/hive/tarball/develop#egg=hive"]
+    requires=["django"],
+    # Install hive and tojson by hand
+    #dependency_links=["https://github.com/MPBAUnofficial/hive/tarball/develop#egg=hive"]
 )
 
