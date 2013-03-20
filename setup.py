@@ -19,7 +19,7 @@ setup(
         'Framework :: Django',
     ],
     install_requires=["django", "pyhive", "django-tojson"],
-    dependency_links=["https://github.com/MPBAUnofficial/hive/tarball/develop#egg=pyhive",
+    dependency_links=["https://github.com/MPBAUnofficial/pyhive/tarball/develop#egg=pyhive",
                       "https://github.com/davidek/django-tojson/tarball/master#egg=django-tojson"]
 )
 
