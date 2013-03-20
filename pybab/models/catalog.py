@@ -28,7 +28,7 @@ class GenericMetadata(GeoTreeModel):
     genealogy = models.TextField(blank=True, null=True)
     spatial_resolution = models.TextField(blank=True, null=True)
     ref_system = models.TextField(blank=True, null=True)
-    avaiability = models.TextField(blank=True, null=True)
+    availability = models.TextField(blank=True, null=True)
     has_attributes = models.NullBooleanField()
 
     class Meta(GeoTreeModel.Meta):
