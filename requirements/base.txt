@@ -1,7 +1,7 @@
 # Install those system-wide
 #gdal
 #psycopg2
-django >1.4, <1.5
+django >=1.4, <1.5
 #git+https://github.com/davidek/django-tojson.git#egg=tojson
 https://github.com/davidek/django-tojson/tarball/master#egg=tojson
-https://github.com/MPBAUnofficial/hive/tarball/develop#egg=hive
+https://github.com/MPBAUnofficial/pyhive/tarball/develop#egg=pyhive

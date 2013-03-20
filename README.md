@@ -11,8 +11,12 @@ python setup.py install
 
 - Add the following to your installed apps.
 ```python
-INSTALLED_APPS += ('hive.extra.django', 'pybab', 'pybab.api')
+INSTALLED_APPS += ('pyhive.extra.django', 'pybab', 'pybab.api')
+```
+and this to your template loaders:
+```python
+TEMPLATE_LOADERS += ('django.template.loaders.eggs.Loader',)
 ```
 
 - Tweack the settings
-- This is it!
+- Enjoy

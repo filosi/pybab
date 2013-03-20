@@ -1,8 +1,8 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from hive.decorators import serializable
-from hive.extra.django import DjangoModelSerializer
+from pyhive.decorators import serializable
+from pyhive.extra.django import DjangoModelSerializer
 
 from .tree import Element
 from .base import GeoTreeModel, GeoTreeError, pg_run
