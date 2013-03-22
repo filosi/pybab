@@ -4,7 +4,7 @@ from .catalog import GroupModel
 
 
 class Indicator(GeoTreeModel):
-    id = models.BigIntegerField(unique=True)
+    id = models.AutoField(primary_key=True)
     group = models.ForeignKey('IndicatorGroup')
     name = models.CharField(max_length=255)
     function_name = models.TextField()
@@ -27,7 +27,7 @@ class IndicatorGroup(GroupModel):
 
 
 class IndicatorLabel(GeoTreeModel):
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     gt_indicator = models.ForeignKey('Indicator')
     gt_label = models.ForeignKey('Label')
 
@@ -36,7 +36,7 @@ class IndicatorLabel(GeoTreeModel):
 
 
 class IndicatorMeta(GeoTreeModel):
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     indicator = models.ForeignKey('Indicator', unique=True)
     title = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -48,7 +48,7 @@ class IndicatorMeta(GeoTreeModel):
 
 
 class IndicatorTree(GeoTreeModel):
-    id = models.BigIntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     group = models.ForeignKey('IndicatorGroup', unique=True, related_name='child_tree')
     parent_group = models.ForeignKey('IndicatorGroup', related_name='parent_tree')
 

@@ -1,8 +1,9 @@
 # from django.http import HttpResponseBadRequest, HttpResponseForbidden
 # from django.utils.translation import ugettext as _
 # from pybab.models import CatalogIndicator, IndicatorGroup
-# from tojson import render_to_json
-# from .commons import login_required_json_default, get_subtree_for
+from tojson import render_to_json
+from .commons import login_required_json_default
+from ..indicators.fields import CatlasAgeClassField, CatlasDateRange, CatlasSexSelector, CatlasTumorSite
 # from ..forms import UserIndicatorLinkForm
 #
 #
@@ -28,4 +29,20 @@
 #         return {'success' : False,
 #                 'message' : _(error_msg)}, {'cls':HttpResponseForbidden}
 #
+
+
+
+@login_required_json_default
+@render_to_json()
+def indicator_list(request, index=0):
+    if request.method == 'GET':
+        widgets = [
+            CatlasSexSelector('sex'),
+            CatlasTumorSite('tumor_site'),
+            CatlasDateRange('date_range'),
+            CatlasAgeClassField('age_class'),
+        ]
+        return [{'id': 42,
+                 'name': 'FooBar Indicator',
+                 'widgets': [w.widget.render() for w in widgets]}]
 

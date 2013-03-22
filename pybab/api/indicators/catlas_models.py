@@ -1,20 +1,24 @@
-from django.db import Model
+from django.db import models
+
 
 class Biennium(models.Model):
     anno = models.BigIntegerField(primary_key=True)
 
-    @property
-    def years(self):
-        return (self.anno, self.anno + 1)
+    def __unicode__(self):
+        return u'({0}, {1})'.format(self.anno, self.anno + 1)
 
     class Meta(object):
         managed = False
-        table_name = u'bienno'
+        db_table = u'biennio'
         app_label = u'api'
 
+
 class TumorSite(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.TextField(unique=True)
+
+    def __unicode__(self):
+        return u'({0}, {1})'.format(self.id, self.name)
 
     class Meta(object):
         managed = False
