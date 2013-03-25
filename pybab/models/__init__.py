@@ -1,4 +1,4 @@
-__all__ = ['Label', 'Element', 'Meta',
+__all__ = ['Label', 'Element',
            'Indicator', 'IndicatorGroup', 'IndicatorTree',
            'CatalogStatistical', 'StatisticalGroup', 'StatisticalTree',
            'CatalogLayer', 'LayerGroup', 'LayerTree']

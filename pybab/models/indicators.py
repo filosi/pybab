@@ -17,6 +17,9 @@ class Indicator(GeoTreeModel):
     gs_style_parameters = models.TextField(null=True, blank=True)
     labels = models.ManyToManyField(to='Label', through='IndicatorLabel', related_name='indicators')
 
+    def __unicode__(self):
+        return u'({0}, {1})'.format(self.id, self.name)
+
     class Meta(GeoTreeModel.Meta):
         db_table = u'gt_indicator'
 
