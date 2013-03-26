@@ -1,55 +1,56 @@
-from django.forms import ValidationError
 from django.forms.fields import Field
 from django.db.models import Max, Min
 from pyhive.serializers import ListSerializer
 from pyhive.extra.django import DjangoModelSerializer
+from pyhive.modifiers import exclude_fields
 
 from .widgets import DoubleValueInput, SingleValueInput
 from .validators import *
 from .catlas_models import Biennium, TumorSite
+from ...models import Element, Label
 
 
 class CatlasAgeClassField(Field):
-    def __init__(self, age_classes=range(1, 19)):
+    type = 'age_class'
+
+    def __init__(self, *args, **kwargs):
+        # self.type = 'age_class'
         super(CatlasAgeClassField, self).__init__(
             widget=DoubleValueInput(
-                type='age_class',
-                values=self._get_data(age_classes),
+                type=self.type,
+                values=self._get_data(),
                 suffixes=['start', 'end']
             ),
-            validators=[validate_age_classes(age_classes)])
+            validators=[validate_age_classes])
+
+    def _get_data(self):
+        date_func = '{0} - {1}'.format
+        data = [{'id': i,
+                 'name': date_func((i * 5) - 5, (i * 5) - 1)}
+                for i in range(1, 18)]
+
+        data.append({
+            'id': 18,
+            'label': '85+'
+        })
+
+        return data
 
     def to_python(self, value):
         return list(map(int, value))
 
-    def _get_data(self, age_classes):
-        last = False
-        if 18 in age_classes:
-            age_classes.remove(18)
-            last = True
-
-        date_func = '{0} - {1}'.format
-        data = [{'id': i,
-                 'name': date_func((i * 5) - 5, (i * 5) - 1)}
-                for i in age_classes]
-
-        if last:
-            data.append({
-                'id': 18,
-                'label': '85+'
-            })
-
-        return data
-
 
 class CatlasDateRange(Field):
-    def __init__(self):
+    type = 'date_range'
+
+    def __init__(self, *args, **kwargs):
         min = Biennium.objects.all().aggregate(Min('anno'))['anno__min']
         max = Biennium.objects.all().aggregate(Max('anno'))['anno__max'] + 1
+        years = [{'id':i, 'name':i} for i in range(min, max + 1)]
         super(CatlasDateRange, self).__init__(
             widget=DoubleValueInput(
-                type='date_range',
-                values=self._get_data(range(min, max + 1)),
+                type=self.type,
+                values=years,
                 suffixes=['start', 'end']
             ),
             validators=[validate_years(min, max)]
@@ -60,10 +61,13 @@ class CatlasDateRange(Field):
 
 
 class CatlasSexSelector(Field):
-    def __init__(self):
+    type = 'sex'
+
+    def __init__(self, *args, **kwargs):
+        # self.type = 'sex'
         super(CatlasSexSelector, self).__init__(
             widget=SingleValueInput(
-                type='sex',
+                type=self.type,
                 values=None
             ),
             validators=[validate_sex]
@@ -74,10 +78,13 @@ class CatlasSexSelector(Field):
 
 
 class CatlasTumorSite(Field):
-    def __init__(self):
+    type = 'tumor_site'
+
+    def __init__(self, *args, **kwargs):
+        # self.type = 'tumor_site'
         super(CatlasTumorSite, self).__init__(
             widget=SingleValueInput(
-                type='tumor_site',
+                type=self.type,
                 values=self._get_data()
             ),
             validators=[validate_tumor_site]
@@ -98,12 +105,14 @@ class CatlasTumorSite(Field):
         return self._build_query(value)
 
 
-
 class CatlasEnvironmentalLevel(Field):
-    def __init__(self, indicator_id):
+    type = 'output_level'
+
+    def __init__(self, indicator_id, *args, **kwargs):
+        # self.type = 'environmental_level'
         super(CatlasEnvironmentalLevel, self).__init__(
             widget=SingleValueInput(
-                type='environmental_level',
+                type=self.type,
                 values=self._get_data(indicator_id)
             ),
             validators=[validate_environmental_level(indicator_id)]
@@ -115,14 +124,14 @@ class CatlasEnvironmentalLevel(Field):
     def clean(self, value):
         value = super(CatlasEnvironmentalLevel, self).clean(value)
         return self._get_elements(value)
-        
 
+    def _get_elements(self, value):
+        label = Label.objects.get(pk=value)
+        raw_elements = Element.objects.by_label(label)
+        return [elem.pk for elem in raw_elements]
 
-# class CatlasEnvironmentLevel(object):
-#     def __init__(self, name, indicator_id):
-#         self.widget = SingleValueInput(name, 'environment_level', self._get_data(indicator_id))
-#
-#     def _get_data(self, indicator_id):
-#         labels = Indicator.objects.get(self.indicator_id).labels.all()
-#         label_types = {label.type for label in labels}
-#         return list(label_types)
+    def _get_data(self, indicator_id):
+        indicator = Indicator.objects.get(pk=indicator_id)
+        labels = indicator.labels.all()
+        label_serializer = DjangoModelSerializer([exclude_fields(['type'])])
+        return ListSerializer(item_serializer=label_serializer).serialize(labels)

@@ -18,7 +18,7 @@ class SingleValueInput(Widget):
     def __init__(self, type, values):
         self.values = values
         self.type = type
-        super(Widget, self).__init__()
+        super(SingleValueInput, self).__init__()
 
     def render(self, name, value, attrs=None, choices=()):
         return {'name': name,
@@ -36,7 +36,7 @@ class DoubleValueInput(Widget):
         self.values = values
         self.suffixes = suffixes
         self.type = type
-        super(Widget, self).__init__()
+        super(DoubleValueInput, self).__init__()
 
     def render(self, name, value, attrs=None, choices=()):
         return {'name': name,

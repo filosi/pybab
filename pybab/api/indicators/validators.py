@@ -1,21 +1,19 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from ...models import Label, Element, Indicator
+from ...models import Indicator
 
 from .catlas_models import TumorSite
 
 
-def validate_age_classes(age_classes):
-    def inner(value):
-        start, end = value
-        if None in value:
-            raise ValidationError(_(u'start and end must not be none'))
-        elif start not in age_classes or end not in age_classes:
-            raise ValidationError(_(u'start and end must be in {0}'.format(age_classes)))
-        elif start > end:
-            raise ValidationError(_(u'start must be lower or equal to end'))
-
-    return inner
+def validate_age_classes(value):
+    start, end = value
+    age_classes = range(1, 19)
+    if None in value:
+        raise ValidationError(_(u'start and end must not be none'))
+    elif start not in age_classes or end not in age_classes:
+        raise ValidationError(_(u'start and end must be in {0}'.format(age_classes)))
+    elif start > end:
+        raise ValidationError(_(u'start must be lower or equal to end'))
 
 
 def validate_years(min, max):
@@ -45,8 +43,8 @@ def validate_tumor_site(value):
 
 def validate_environmental_level(indicator_id):
     def inner(value):
-        if Indicator.objects.get(pk=indicator_id).labels.filter(pk=value).count() < 1:
-            raise ValueError(_(u'environmental level with pk={0} is not avaiable for indicator with pk={1}'.format(
+        if not Indicator.objects.get(pk=indicator_id).labels.filter(pk=value).exists():
+            raise ValidationError(_(u'environmental level with pk={0} is not avaiable for indicator with pk={1}'.format(
                 value, indicator_id)))
 
     return inner
