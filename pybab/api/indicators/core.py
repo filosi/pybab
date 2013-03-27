@@ -3,7 +3,7 @@ from django.forms import forms
 from django.utils.translation import ugettext_lazy as _
 from . import fields
 from .settings import CATALOG_INCIDENCE, CATALOG_POPULATION, LABEL_COMUNI
-from ...models import Indicator, Element, Label
+from ...models import Element, Label
 from ...models.base import pg_execute
 
 FIELD_TYPES = {field.type: field for field in (fields.CatlasSexSelector,
@@ -13,7 +13,7 @@ FIELD_TYPES = {field.type: field for field in (fields.CatlasSexSelector,
                                                fields.CatlasAgeClassField)}
 
 FIXED_PARAMETERS = {
-    'input_level': [x.id for x in Element.objects.by_label(Label.objects.get(pk=LABEL_COMUNI))],
+    'input_level': [x.code for x in Element.objects.by_label(Label.objects.get(pk=LABEL_COMUNI))],
     'population_catalog': CATALOG_POPULATION,
     'incidence_catalog': CATALOG_INCIDENCE
 }
@@ -62,12 +62,18 @@ class IndicatorForm(forms.Form):
     def _sorted_parameters(self):
         func_params = []
         for raw_field in sorted(self.raw_fields, key=lambda s: s[u'index']):
+            field_type = raw_field[u'type']
             if raw_field[u'fixed']:
-                field_type = raw_field[u'type']
                 func_params.append(FIXED_PARAMETERS[field_type])
             else:
                 field_name = raw_field[u'name']
-                func_params.append(self.cleaned_data[field_name])
+                if field_type == u'date_range':
+                    min, max = self.cleaned_data[field_name]
+                    func_params.append(min)
+                    func_params.append(max)
+                else:
+                    func_params.append(self.cleaned_data[field_name])
+        return func_params
 
     @property
     def function_name(self):
@@ -77,10 +83,17 @@ class IndicatorForm(forms.Form):
         if self.is_valid():
             # get the sorted parameters
             parameters = self._sorted_parameters()
-            function_out = pg_execute(self.function_name, parameters, fetchone=True)
+            _, timestamp, hash, quantile = pg_execute(self.function_name, parameters, fetchone=True)
             return {
                 'success': True,
-                'data': function_out
+                'data': {
+                    'timestamp': timestamp,
+                    'hash': hash,
+                    'quantile': quantile,
+                    'gs_layer': self.indicator.gs_layer,
+                    'gs_workspace': self.indicator.gs_workspace,
+                    'gs_url': self.indicator.gs_url,
+                }
             }
         else:
             return {

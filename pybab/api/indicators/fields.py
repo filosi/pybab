@@ -39,6 +39,11 @@ class CatlasAgeClassField(Field):
     def to_python(self, value):
         return list(map(int, value))
 
+    def clean(self, value):
+        value = super(CatlasAgeClassField, self).clean(value)
+        min, max = value
+        return range(min, max + 1)
+
 
 class CatlasDateRange(Field):
     type = 'date_range'
@@ -128,7 +133,7 @@ class CatlasEnvironmentalLevel(Field):
     def _get_elements(self, value):
         label = Label.objects.get(pk=value)
         raw_elements = Element.objects.by_label(label)
-        return [elem.pk for elem in raw_elements]
+        return [elem.code for elem in raw_elements]
 
     def _get_data(self, indicator_id):
         indicator = Indicator.objects.get(pk=indicator_id)

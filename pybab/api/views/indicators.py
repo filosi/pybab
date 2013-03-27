@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.views.decorators.http import require_GET, require_POST
 from tojson import render_to_json
 from .commons import login_required_json_default
@@ -21,9 +22,10 @@ def indicator_list(request):
         'data': indicator_list
     }
 
-@require_POST
 @login_required_json_default
 @render_to_json()
+@require_POST
+@transaction.commit_on_success
 def indicator_run(request, index):
     indicator = Indicator.objects.get(pk=index)
     MyIndicatorForm = FormBuilder(indicator).build_form()
