@@ -10,8 +10,9 @@ urlpatterns = patterns('pybab.api',
     #catalog statistical
     url(r'^statistical/$', 'views.catalog_statistical'),
     url(r'^statistical/(?P<index>\d+)/$', 'views.catalog_statistical'),
-    #catalog indicator
     url(r'^indicator/$', 'views.indicators.indicator_list'),
+    url(r'^indicator/run/(?P<index>\d+)/$', 'views.indicators.indicator_run'),
+
     # url(r'^indicator/(?P<index>\d+)/$', 'views.catalog_indicator'),
     #metadata
     # url(r'^metadata/(?P<index>\d+)/$', 'views.metadata'),

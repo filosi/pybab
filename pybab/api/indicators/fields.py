@@ -31,7 +31,7 @@ class CatlasAgeClassField(Field):
 
         data.append({
             'id': 18,
-            'label': '85+'
+            'name': '85+'
         })
 
         return data

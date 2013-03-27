@@ -52,7 +52,7 @@ class FormBuilder(object):
         dct.update({
             'raw_fields': self.raw_fields,
             'render': self._get_render(),
-            'function_name': self.indicator.function_schema + '.' + self.indicator.function_name,
+            'indicator': self.indicator,
         })
 
         return self._get_form_class(dct)
@@ -69,11 +69,15 @@ class IndicatorForm(forms.Form):
                 field_name = raw_field[u'name']
                 func_params.append(self.cleaned_data[field_name])
 
+    @property
+    def function_name(self):
+        return self.indicator.function_schema + '.' + self.indicator.function_name
+
     def save(self):
         if self.is_valid():
             # get the sorted parameters
             parameters = self._sorted_parameters()
-            function_out = pg_execute(self.function_name, parameters, True)
+            function_out = pg_execute(self.function_name, parameters, fetchone=True)
             return {
                 'success': True,
                 'data': function_out
