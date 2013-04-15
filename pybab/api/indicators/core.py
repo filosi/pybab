@@ -2,7 +2,7 @@ import json
 from django.forms import forms
 from django.utils.translation import ugettext_lazy as _
 from . import fields
-from .settings import CATALOG_INCIDENCE, CATALOG_POPULATION, LABEL_COMUNI
+from .settings import CATALOG_INCIDENCE, CATALOG_POPULATION, LABEL_MUNICIPALITY, CATALOG_MUNICIPALITY
 from ...models import Element, Label
 from ...models.base import pg_execute
 
@@ -13,9 +13,10 @@ FIELD_TYPES = {field.type: field for field in (fields.CatlasSexSelector,
                                                fields.CatlasAgeClassField)}
 
 FIXED_PARAMETERS = {
-    'input_level': [x.code for x in Element.objects.by_label(Label.objects.get(pk=LABEL_COMUNI))],
+    'input_level': [x.code for x in Element.objects.by_label(Label.objects.get(pk=LABEL_MUNICIPALITY))],
     'population_catalog': CATALOG_POPULATION,
-    'incidence_catalog': CATALOG_INCIDENCE
+    'incidence_catalog': CATALOG_INCIDENCE,
+    'municipality_catalog': CATALOG_MUNICIPALITY
 }
 
 
@@ -83,13 +84,14 @@ class IndicatorForm(forms.Form):
         if self.is_valid():
             # get the sorted parameters
             parameters = self._sorted_parameters()
-            _, timestamp, hash, quantile = pg_execute(self.function_name, parameters, fetchone=True)
+            hash_id, timestamp, hash, quantile, layer_name = pg_execute(self.function_name, parameters, fetchone=True)
             return {
                 'success': True,
                 'data': {
-                    'timestamp': timestamp,
+                    'timestamp': timestamp.isoformat(),
                     'hash': hash,
                     'quantile': quantile,
+                    'gs_layer_name': layer_name,
                     'gs_layer': self.indicator.gs_layer,
                     'gs_workspace': self.indicator.gs_workspace,
                     'gs_url': self.indicator.gs_url,

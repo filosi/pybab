@@ -81,6 +81,28 @@ class CatlasSexSelector(Field):
     def to_python(self, value):
         return int(value)
 
+class CatlasStandardPopulation(Field):
+    type = 'standard_population'
+
+    def __init__(self, *args, **kwargs):
+        super(CatlasSexSelector, self).__init__(
+            widget=SingleValueInput(
+                type=self.type,
+                values=self._get_values(),
+            ),
+            validators=[validate_standard_population]
+        )
+
+    def _get_data(self):
+        return {
+            1: 'Italia',
+            2: 'Europa',
+            3: 'Mondo'
+        }
+
+    def to_python(self, value):
+        return int(value)
+
 
 class CatlasTumorSite(Field):
     type = 'tumor_site'

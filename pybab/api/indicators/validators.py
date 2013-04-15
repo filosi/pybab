@@ -48,3 +48,8 @@ def validate_environmental_level(indicator_id):
                 value, indicator_id)))
 
     return inner
+
+
+def validate_standard_population(id):
+    if id not in (1, 2, 3):
+        raise ValidationError(_(u'Standard population must be Italy `0`, Europe `1`, World `2`'))
