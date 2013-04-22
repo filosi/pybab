@@ -96,9 +96,9 @@ class CatlasStandardPopulation(Field):
 
     def _get_data(self):
         return {
-            {'id': 1, 'name': 'Italia'},
-            {'id': 2, 'name': 'Europa'},
-            {'id': 3, 'name': 'Mondo'},
+            {'id': 'ita', 'name': 'Italia'},
+            {'id': 'eu', 'name': 'Europa'},
+            {'id': 'world', 'name': 'Mondo'},
         }
 
     def to_python(self, value):
