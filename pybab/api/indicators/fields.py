@@ -95,11 +95,11 @@ class CatlasStandardPopulation(Field):
         )
 
     def _get_data(self):
-        return {
+        return [
             {'id': 'ita', 'name': 'Italia'},
             {'id': 'eu', 'name': 'Europa'},
             {'id': 'world', 'name': 'Mondo'},
-        }
+        ]
 
     def to_python(self, value):
         return int(value)
