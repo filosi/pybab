@@ -1,4 +1,5 @@
 from django.db import models
+from jsonfield import JSONField
 from .base import GeoTreeModel
 from .catalog import GroupModel
 
@@ -9,7 +10,7 @@ class Indicator(GeoTreeModel):
     name = models.CharField(max_length=255)
     function_name = models.TextField()
     function_schema = models.TextField(default='public')
-    function_parameters = models.TextField()
+    function_parameters = models.JsonField()
     gs_layer = models.TextField()
     gs_workspace = models.TextField(null=True, blank=True)
     gs_url = models.TextField()

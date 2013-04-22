@@ -10,7 +10,8 @@ FIELD_TYPES = {field.type: field for field in (fields.CatlasSexSelector,
                                                fields.CatlasEnvironmentalLevel,
                                                fields.CatlasTumorSite,
                                                fields.CatlasDateRange,
-                                               fields.CatlasAgeClassField)}
+                                               fields.CatlasAgeClassField,
+                                               fields.CatlasStandardPopulation)}
 
 FIXED_PARAMETERS = {
     'input_level': [x.code for x in Element.objects.by_label(Label.objects.get(pk=LABEL_MUNICIPALITY))],
@@ -24,7 +25,7 @@ class FormBuilder(object):
     def __init__(self, indicator):
         self.indicator = indicator
         #TODO: replace with jsonfield
-        self.raw_fields = json.loads(self.indicator.function_parameters)
+        self.raw_fields = self.indicator.function_parameters
 
     def _get_render(self):
         return lambda instance_self: {

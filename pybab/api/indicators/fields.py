@@ -8,6 +8,7 @@ from .widgets import DoubleValueInput, SingleValueInput
 from .validators import *
 from .catlas_models import Biennium, TumorSite
 from ...models import Element, Label
+from django.views.generic import CreateView
 
 
 class CatlasAgeClassField(Field):
@@ -85,19 +86,19 @@ class CatlasStandardPopulation(Field):
     type = 'standard_population'
 
     def __init__(self, *args, **kwargs):
-        super(CatlasSexSelector, self).__init__(
+        super(CatlasStandardPopulation, self).__init__(
             widget=SingleValueInput(
                 type=self.type,
-                values=self._get_values(),
+                values=self._get_data(),
             ),
             validators=[validate_standard_population]
         )
 
     def _get_data(self):
         return {
-            1: 'Italia',
-            2: 'Europa',
-            3: 'Mondo'
+            {'id': 1, 'name': 'Italia'},
+            {'id': 2, 'name': 'Europa'},
+            {'id': 3, 'name': 'Mondo'},
         }
 
     def to_python(self, value):
