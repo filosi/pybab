@@ -10,7 +10,7 @@ class Indicator(GeoTreeModel):
     name = models.CharField(max_length=255)
     function_name = models.TextField()
     function_schema = models.TextField(default='public')
-    function_parameters = models.JsonField()
+    function_parameters = models.JSONField()
     gs_layer = models.TextField()
     gs_workspace = models.TextField(null=True, blank=True)
     gs_url = models.TextField()
