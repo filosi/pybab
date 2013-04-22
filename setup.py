@@ -18,7 +18,7 @@ setup(
         'Operating System :: OS Indipendent',
         'Framework :: Django',
     ],
-    install_requires=["django", "pyhive==0.2.1", "django-tojson==0.3.0"],
+    install_requires=["django", "jsonfield>=0.9.13", "pyhive==0.2.1", "django-tojson==0.3.0"],
     dependency_links=["http://github.com/MPBAUnofficial/pyhive/tarball/develop#egg=pyhive-0.2.1",
                       "http://github.com/davidek/django-tojson/tarball/master#egg=django-tojson-0.3.0"]
 )
