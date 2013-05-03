@@ -102,7 +102,7 @@ class CatlasStandardPopulation(Field):
         ]
 
     def to_python(self, value):
-        return int(value)
+        return value
 
 
 class CatlasTumorSite(Field):
