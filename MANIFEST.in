@@ -1,0 +1,3 @@
+include VERSION
+recursive-include pybab/templates *
+recursive-include pybab/api/templates *

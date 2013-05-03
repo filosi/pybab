@@ -1,8 +1,8 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from hive.decorators import serializable
-from hive.extra.django import DjangoModelSerializer
+from pyhive.decorators import serializable
+from pyhive.extra.django import DjangoModelSerializer
 
 from .tree import Element
 from .base import GeoTreeModel, GeoTreeError, pg_run
@@ -28,7 +28,7 @@ class GenericMetadata(GeoTreeModel):
     genealogy = models.TextField(blank=True, null=True)
     spatial_resolution = models.TextField(blank=True, null=True)
     ref_system = models.TextField(blank=True, null=True)
-    avaiability = models.TextField(blank=True, null=True)
+    availability = models.TextField(blank=True, null=True)
     has_attributes = models.NullBooleanField()
 
     class Meta(GeoTreeModel.Meta):
@@ -160,7 +160,7 @@ class StatisticalTree(GeoTreeModel):
 
 
 class StatisticalMeta(GenericMetadata):
-    statistical = models.OneToOneField('CatalogStatistical', related_name='meta')
+    statistical = models.OneToOneField('CatalogStatistical', related_name='metadata')
 
     class Meta(GenericMetadata.Meta):
         db_table = u'gt_statistical_meta'
@@ -209,7 +209,7 @@ class LayerTree(GeoTreeModel):
 
 
 class LayerMeta(GenericMetadata):
-    layer = models.OneToOneField('CatalogLayer', related_name='meta')
+    layer = models.OneToOneField('CatalogLayer', related_name='metadata')
 
     class Meta(GenericMetadata.Meta):
         db_table = u'gt_layer_meta'

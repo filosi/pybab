@@ -1,5 +1,5 @@
 from django import forms
-from pybab.api.models import UserIndicatorLink
+from ..models import UserIndicatorLink
 
 class UserIndicatorLinkForm(forms.ModelForm):
     class Meta:

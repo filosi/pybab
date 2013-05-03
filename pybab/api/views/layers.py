@@ -7,7 +7,7 @@ from pybab.models import CatalogLayer, LayerGroup
 from .commons import login_required_json_default, get_subtree_for
 from ..forms import ShapeForm
 from ..api_settings import MAX_LAYER_UPLOADS, MAX_GROUPS
-from ..modifiers import get_style, alter_id
+from ..modifiers import add_style, alter_id, add_metadata
 
 
 @login_required_json_default
@@ -18,7 +18,7 @@ def catalog_layer(request, index=0):
 
     if request.method == 'GET':
         return get_subtree_for(user, index, LayerGroup, CatalogLayer,
-                               extra_data=[get_style, alter_id, {'checked': False}])
+                               extra_data=[add_metadata, add_style, alter_id, {'checked': False}])
     elif request.method == 'POST':
         return _upload_layer(request, user)
     elif request.method == 'DELETE':
